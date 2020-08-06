@@ -1,1 +1,3 @@
 # LNCC-COVID-19-prediction
+
+O objetivo deste projeto é a obtenção periódica de previsões da dinâmica da COVID-19 no Brasil. Implementamos um conjunto de modelos de equações diferenciais ordinárias, os quais são calibrados com um conjunto de dados atualizados e, posteriormente, classificados com base na qualidade da calibração. A partir dessa classificação é computada uma previsão utilizando os resultados dos modelos para um período de tempo.
