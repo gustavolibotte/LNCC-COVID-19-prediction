@@ -14,6 +14,7 @@ from mpi4py import MPI
 import time
 from ABC_backend import *
 from epidemic_models import *
+# from data_loading import LoadData
 
 plt.rcParams.update({'font.size': 22})
 
@@ -35,6 +36,20 @@ germany = data[data["Country/Region"] == "Germany"] # Germany data
 start = np.where(germany.Active!=0)[0][0] # First day with more than zero infected people
 x = np.linspace(start, len(germany), len(germany[start:])) # Days from start as natural numbers
 y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(2, len(germany[start:])) # Germany's Active and Recovered data
+
+#######################################################################################
+# Uncomment to run an example of loading data (do not forget to uncomment the import) #
+# TODO: use this data after inserting the new models                                  #
+#######################################################################################
+# df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
+# print(df_brazil_state_cases)
+# rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
+# print(rj_state_cases)
+# rj_state_cities_cases = LoadData.getBrazilStateCityDataFrame("RJ", True)
+# print(rj_state_cities_cases)
+# petropolis_cities_cases = LoadData.getBrazilCityDataFrame(rj_state_cities_cases, "Petrópolis/RJ")
+# print(petropolis_cities_cases)
+#######################################################################################
 
 ##########################################################################
 
