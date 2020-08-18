@@ -12,9 +12,17 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mpi4py import MPI
 import time
+
 from ABC_backend import *
+    # sort: function to sort random numbers according to a given numerical histogram
+    # rejABC: Rejection ABC implementation
+
 from epidemic_models import *
-# from data_loading import LoadData
+    # rk4: 4th order Runge-Kutta for differential equation numerical integration
+    # SIR: SIR differential equations model
+    # SIR_sol: solution to the SIR model
+
+# from data_loading import LoadData 
 
 plt.rcParams.update({'font.size': 22})
 
