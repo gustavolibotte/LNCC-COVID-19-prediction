@@ -63,9 +63,9 @@ def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample):
     for i in range(n_sample):
         
         # Sort parameters according to given priors
-        for i in range(n_mp):
+        for j in range(n_mp):
         
-            p[i] = np.random.uniform(prior_params[i,0], prior_params[i,1])
+            p[j] = np.random.uniform(prior_params[j,0], prior_params[j,1])
         
         d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2))/len(dat_t)
         p[-1] = d # Model-data distance
