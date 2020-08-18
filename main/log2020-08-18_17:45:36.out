@@ -1,0 +1,35 @@
+Rejection ABC fitting of epidemic curves
+
+Model: SIR
+Parameters: beta, N, gamma
+
+#####################################################################
+
+Number of Iterations: 100000
+Number of Posteriors: 1
+
+#####################################################################
+
+Posterior No. 1
+Execution Time: 11.704 s
+Tolerance: eps = 1000.00
+
+Priors' Ranges:
+
+	 beta: 0.000000 <-> 1.000000
+	 N: 160000.000000 <-> 200000.000000
+	 gamma: 0.000000 <-> 1.000000
+
+Estimated parameters (av +/- std):
+
+	 beta: 0.241286 +/- 0.009909
+	 N: 178755.372423 +/- 9107.304550
+	 gamma: 0.067130 +/- 0.013519
+
+Posterior distribution on file posterior.png
+
+#####################################################################
+
+Total time on ABC: 11.704 s
+
+Fit on file model_fit.png

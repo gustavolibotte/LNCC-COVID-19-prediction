@@ -8,10 +8,11 @@ Created on Tue Jul 21 12:42:48 2020
 
 # Import libraries
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from mpi4py import MPI
-import time
+import matplotlib.pyplot as plt # plotting
+import pandas as pd # data processing
+from mpi4py import MPI # module for MPI parallelization
+import time # time module for counting execution time
+import datetime # date and time for logs
 
 from ABC_backend import *
     # sort: function to sort random numbers according to a given numerical histogram
@@ -68,7 +69,7 @@ y0[1:] = y[:,0]
 # Ranges for initial uniform parameter priors (beta, N, gamma)
 priors = np.array([[0,1], [1.6e5, 2e5], [0, 1]], dtype=np.float64)
 
-n = 1000000 # Number of samples
+n = 100000 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
 eps = 1000 # Tolerance
 
@@ -92,17 +93,23 @@ t_tot += t # Add posterior calculation time to total execution time
 # First posterior analysis running on master core
 if (rank == root):
     
+    log = open("log%s.out" % (str(datetime.datetime.now()).replace(" ", "_").split(".")[0]), "w")
+    
     # Info
-    print("\n#####################################################################\n")
-    print("Number of Iterations: %i" % (n))
-    print("Number of Posteriors: %i" % (repeat))
-    print("\n#####################################################################\n")
-    print("Posterior No. 1")
-    print("Execution Time: %.3f s" % (t))
-    print("eps = %.2f" % (eps))
-    print("Priors' Ranges:")
+    log.write("Rejection ABC fitting of epidemic curves\n\n")
+    log.write("Model: SIR\n")
+    param_names = ("beta", "N", "gamma")
+    log.write("Parameters: %s, %s, %s\n" % param_names)
+    log.write("\n#####################################################################\n\n")
+    log.write("Number of Iterations: %i\n" % (n))
+    log.write("Number of Posteriors: %i\n" % (repeat))
+    log.write("\n#####################################################################\n\n")
+    log.write("Posterior No. 1\n")
+    log.write("Execution Time: %.3f s\n" % (t))
+    log.write("Tolerance: eps = %.2f\n" % (eps))
+    log.write("\nPriors' Ranges:\n\n")
     for i in range(len(priors)):
-        print("\t %f <-> %f" % tuple(priors[i]))
+        log.write("\t %s" % (param_names[i]) + ": %f <-> %f\n" % tuple(priors[i]))
     
     post = np.concatenate(post) # Join results from different cores in a numpy array
     
@@ -121,9 +128,11 @@ if (rank == root):
     p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
     p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
 
-    print("\nEstimated parameters (av +/- std):")
+    log.write("\nEstimated parameters (av +/- std):\n\n")
     for i in range(len(p)):
-        print("\t %f +/- %f" % (p[i], p_std[i]))
+        log.write("\t %s" % (param_names[i]) + ": %f +/- %f\n" % (p[i], p_std[i]))
+        
+    log.write("\nPosterior distribution on file posterior.png\n")
     
     params = np.concatenate((p,p_std)).reshape((2, len(p))) # Join parameters and errors in a numpy array
     
@@ -159,22 +168,22 @@ for i in range(repeat-1):
     
     if (rank == root):
     
-        print("\n#####################################################################\n")
-        print("Posterior No. %i" % (i+2))
-        print("Execution Time: %.3f s" % (t))
-        print("eps = %.2f" % (eps))
-        print("Priors' Ranges:")
+        log.write("\n#####################################################################\n\n")
+        log.write("Posterior No. %i\n" % (i+2))
+        log.write("Execution Time: %.3f s\n" % (t))
+        log.write("Tolerance: eps = %.2f\n" % (eps))
+        log.write("\nPriors' Ranges:\n\n")
         for j in range(len(priors)):
-            print("\t %f <-> %f" % tuple(priors[j]))
+            log.write("\t %f <-> %f\n" % tuple(priors[j]))
         
         post = np.concatenate(post)
         
         p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1])
         p_std = np.std(post[:,:-1], axis=0)
     
-        print("\nEstimated parameters (av +/- std):")
+        log.write("\nEstimated parameters (av +/- std):\n\n")
         for j in range(len(p)):
-            print("\t %f +/- %f" % (p[j], p_std[j]))
+            log.write("\t %f +/- %f\n" % (p[j], p_std[j]))
         
         params = np.concatenate((p,p_std)).reshape((2, len(p)))
         
@@ -193,8 +202,12 @@ if (rank == root):
 
     p = params[0]
     p_std = params[1]
-        
-    print("\nTotal time on ABC: %.3f" %(t_tot))
+    
+    log.write("\n#####################################################################\n\n")    
+    log.write("Total time on ABC: %.3f s\n" %(t_tot))
+    log.write("\nFit on file model_fit.png")
+    log.close()
+    
     plt.figure(figsize=(15, 10))
     plt.scatter(x, y[0], facecolors="none", edgecolors="red",  label="Infected Data")
     plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Recovered Data")
