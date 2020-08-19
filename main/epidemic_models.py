@@ -62,3 +62,26 @@ def SIR_sol(t, params, y0):
     y0[0] = params[1] - (y0[1] + y0[2])
     
     return rk4(SIR, y0, t, params)[:,1:].T
+
+@njit(fastmath=True)
+def SIRD(y, t, params):
+
+    S, R, I, D = y
+    beta, N, gamma, mu = params
+
+    return np.array([-betaIS/N,
+                     gammaI,
+                     betaIS/N-gammaI-muI,
+                     muI])
+
+#S SIRD model solutions
+@njit(fastmath=True)
+def SIRD_sol(t, params, y0):
+
+    y0[0] = params[1] - (y0[1] + y0[2] + y0[3])
+
+    sol = rk4(SIRD, y0, t, params)
+
+    I_tot = np.sum(sol[:,1:], axis = 1)
+    D = sol[:,3]
+    return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
