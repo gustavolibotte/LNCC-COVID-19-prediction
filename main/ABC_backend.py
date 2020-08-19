@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 18 19:19:52 2020
+
+@author: pedroc
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 # Import libraries
 import numpy as np

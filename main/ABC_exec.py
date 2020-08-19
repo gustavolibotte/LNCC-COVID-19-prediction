@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 21 12:42:48 2020
+Created on Tue Aug 18 19:20:13 2020
 
-@author: joaop
+@author: pedroc
 """
 
 # Import libraries
@@ -35,7 +35,7 @@ germany = data[data["Country/Region"] == "Germany"] # Germany data
 # Data organization
 start = np.where(germany.Active!=0)[0][0] # First day with more than zero infected people
 x = np.linspace(start, len(germany), len(germany[start:])) # Days from start as natural numbers
-y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(2, len(germany[start:])) # Germany's Active and Recovered data
+y = np.concatenate((germany.Confirmed[start:], germany.Deaths[start:])).reshape(2, len(germany[start:])) # Germany's Active, Recovered and Dead data
 
 #######################################################################################
 # Uncomment to run an example of loading data (do not forget to uncomment the import) #
@@ -54,18 +54,19 @@ y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(
 ##########################################################################
 
 # Initial conditions (SIR)
-y0 = np.zeros(3)
-y0[1:] = y[:,0]
+y0 = np.zeros(5)
+y0[3:] = y[:,0]
 
-# Ranges for initial uniform parameter priors (beta, N, gamma)
-priors = np.array([[0,1], [1.6e5, 2e5], [0, 1]], dtype=np.float64)
+
+# Ranges for initial uniform parameter priors (beta, N, gamma, mu, c, Pex)
+priors = np.array([[0, 1], [1.6e5, 2e5], [0, 1], [0, 1], [0, 1], [0, 1]], dtype=np.float64)
 
 n = 1000000 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
 eps = 1000 # Tolerance
 
 # First run for numba pre compilation
-rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=100)
+rejABC(SEIRD_sol, priors, x, y, y0, eps, n_sample=100)
 
 ##########################################################################
 
@@ -73,7 +74,7 @@ t_tot = 0 # Counting total execution time
 
 # First posterior calculation
 t = time.time()
-post_ = rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
+post_ = rejABC(SEIRD_sol, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
 
 post = comm.gather(post_, root) # Gathering data from all cores to master core
 t = time.time() - t
@@ -102,7 +103,7 @@ if (rank == root):
     plt.figure(figsize=(15, 12))
     plt.suptitle("Posterior Distributions", fontsize=40)
     for i in range(0, len(post[0])-1):
-        plt.subplot(2,2,i+1)
+        plt.subplot(3,3,i+1)
         plt.hist(post[:,i], bins=20, density=True)
         plt.title("Model Parameter %i" % (i+1), fontsize=26)
         plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
@@ -143,7 +144,7 @@ for i in range(repeat-1):
         priors[j] = [np.max([0,p[j]-p_std[j]]), p[j]+p_std[j]]
         
     t = time.time()
-    post_ = rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=np.int(n/size))
+    post_ = rejABC(SEIRD_sol, priors, x, y, y0, eps, n_sample=np.int(n/size))
     
     post = comm.gather(post_, root)
     t = time.time() - t
@@ -189,9 +190,9 @@ if (rank == root):
     print("\nTotal time on ABC: %.3f" %(t_tot))
     plt.figure(figsize=(15, 10))
     plt.scatter(x, y[0], facecolors="none", edgecolors="red",  label="Infected Data")
-    plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Recovered Data")
-    plt.plot(x, SIR_sol(x, p, y0)[0], lw=3, color="red", label="Infected Fit")
-    plt.plot(x, SIR_sol(x, p, y0)[1], lw=3, color="green", label="Recovered Fit")
+    plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Dead Data")
+    plt.plot(x, SEIRD_sol(x, p, y0)[0], lw=3, color="red", label="Infected Fit")
+    plt.plot(x, SEIRD_sol(x, p, y0)[1], lw=3, color="green", label="Dead Fit")
     plt.xlabel("Days since first infection", fontsize=26)
     plt.legend()
     plt.savefig(r"model_fit.png", format="png", dpi=300, bbox_to_inches=None)
