@@ -19,7 +19,7 @@ warnings.simplefilter('ignore', category=numba.NumbaPendingDeprecationWarning)
 ##########################################################################
 
 # 4th order Runge-Kutta integrator
-# @njit(fastmath=True)
+@njit(fastmath=True)
 def rk4(f, y0, t, args, h=1.): 
     # f: function to be integrated; y0: initial conditions;
     # t: time points for the function to be evaluated;
@@ -56,12 +56,13 @@ class SIRD:
     
     # SIRD parameters
     name = "SIRD"
+    ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$"]
     nparams = len(params)
     
     # Differential equations model
     @staticmethod
-    # @njit(fastmath=True)
+    @njit(fastmath=True)
     def model(y, t, params):
         
         S, R, I, D = y
@@ -99,12 +100,9 @@ class SEIRD:
     SEIRD epidemic model
     """
     
-    def __init__(self, dat):
-        
-        self.dat = dat
-    
-    # SIRD parameters
-    name = "SEIRD" 
+    # SEIRD parameters
+    name = "SEIRD"
+    ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\kappa$"]
     nparams = len(params)
     
@@ -153,8 +151,9 @@ class SEIHRD:
         
         self.dat = dat
     
-    # SIRD parameters
+    # SEIHRD parameters
     name = "SEIHRD"
+    ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\kappa$", 
               r"$P_{h}$", r"\tau_{h}", r"$\gamma_{h}$", r"$\mu_{h}$"]
     nparams = len(params)
@@ -205,8 +204,9 @@ class SEIARD:
         
         self.dat = dat
     
-    # SIRD parameters
+    # SEIHRD parameters
     name = "SEIARD"
+    ncomp = len(name)
     params = [r"$\beta_{I}$", r"$\beta_{A}$", r"$N$", r"$\gamma_{I}$", r"$\mu$",
               r"$c$", r"$\alpha$", r"$\gamma_{A}$"]
     nparams = len(params)
@@ -226,7 +226,7 @@ class SEIARD:
                          (1-Pa)*c*E - gamma*I - mu*I,
                          mu*I])
     
-    # SEIHRD equations solution
+    # SEIARD equations solution
     @classmethod
     def solution(cls, t, params, y0):
     
@@ -236,7 +236,7 @@ class SEIARD:
 
         return sol
     
-    # SEIHRD model total infected and dead output
+    # SEIARD model total infected and dead output
     @classmethod
     def infected_dead(cls, t, params, y0):
     
@@ -257,8 +257,9 @@ class SEITRD:
         
         self.dat = dat
     
-    # SIRD parameters
+    # SEITRD parameters
     name = "SEITRD"
+    ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma_{I}$", r"$\mu$", r"$c$", r"$\kappa$", 
               r"$\tau_{t}$", r"$P_{t}$", r"$\gamma_{t}$", r"\mu_{t}"]
     nparams = len(params)
@@ -280,7 +281,7 @@ class SEITRD:
                          (Pt/tt)*I - gammat*T - mut*T,
                          mut*T,])
     
-    # SEIHRD equations solution
+    # SEITRD equations solution
     @classmethod
     def solution(cls, t, params, y0):
     
@@ -290,7 +291,7 @@ class SEITRD:
 
         return sol
     
-    # SEIHRD model total infected and dead output
+    # SEITRD model total infected and dead output
     @classmethod
     def infected_dead(cls, t, params, y0):
     
