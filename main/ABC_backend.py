@@ -44,7 +44,7 @@ def sort(n, hist, bins):
 ##########################################################################
 
 # Rejection ABC
-@njit(fastmath=True)
+# @njit(fastmath=True)
 def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample):
     # model: function to be fit; 
     # prior_params: list of ranges for uniform priors;
