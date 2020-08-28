@@ -8,13 +8,24 @@ Created on Tue Jul 21 12:42:48 2020
 
 # Import libraries
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from mpi4py import MPI
-import time
+import matplotlib.pyplot as plt # plotting
+import pandas as pd # data processing
+from mpi4py import MPI # module for MPI parallelization
+import time # time module for counting execution time
+import datetime # date and time for logs
+
 from ABC_backend import *
+    # sort: function to sort random numbers according to a given numerical histogram
+    # rejABC: Rejection ABC implementation
+
 from epidemic_models import *
-# from data_loading import LoadData
+    # rk4: 4th order Runge-Kutta for differential equation numerical integration
+    # SIR: SIR differential equations model
+    # SIR_sol: solution to the SIR model
+
+import epidemic_model_classes as epi_mod
+
+from data_loading import LoadData 
 
 plt.rcParams.update({'font.size': 22})
 
@@ -26,22 +37,11 @@ root = 0 # Master core
 rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
-##########################################################################
-
-# Import data
-data = pd.read_csv(r"covid_19_clean_complete.csv")
-germany = data[data["Country/Region"] == "Germany"] # Germany data
-
-# Data organization
-start = np.where(germany.Active!=0)[0][0] # First day with more than zero infected people
-x = np.linspace(start, len(germany), len(germany[start:])) # Days from start as natural numbers
-y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(2, len(germany[start:])) # Germany's Active and Recovered data
-
 #######################################################################################
 # Uncomment to run an example of loading data (do not forget to uncomment the import) #
 # TODO: use this data after inserting the new models                                  #
 #######################################################################################
-# df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
+df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
 # print(df_brazil_state_cases)
 # rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
 # print(rj_state_cases)
@@ -51,21 +51,33 @@ y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(
 # print(petropolis_cities_cases)
 #######################################################################################
 
-##########################################################################
+# Execution date and time
+datetime_now = str(datetime.datetime.now()).split(".")[0]
 
-# Initial conditions (SIR)
-y0 = np.zeros(3)
-y0[1:] = y[:,0]
+# Location
+location = ["DF"]
+
+# Get data
+data = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, location[-1])
+
+# Choose model
+model = epi_mod.SEIRD
+
+# Initial conditions (SIRD)
+x = np.array(df_state_cases.day)
+y = np.array(df_state_cases[["confirmed", "dead"]].T)
+y0 = np.zeros(model.ncomp)
+y0[-2:] = df_state_cases.loc[0,["confirmed", "dead"]]
 
 # Ranges for initial uniform parameter priors (beta, N, gamma)
-priors = np.array([[0,1], [1.6e5, 2e5], [0, 1]], dtype=np.float64)
+priors = np.array([[0,1], [3e4, 3e6], [0, 1], [0,1], [0, 1], [0,1]], dtype=np.float64)
 
-n = 1000000 # Number of samples
+n = 100000 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
-eps = 1000 # Tolerance
+eps = 10000 # Tolerance
 
 # First run for numba pre compilation
-rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=100)
+rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=10)
 
 ##########################################################################
 
@@ -73,7 +85,7 @@ t_tot = 0 # Counting total execution time
 
 # First posterior calculation
 t = time.time()
-post_ = rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
+post_ = rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
 
 post = comm.gather(post_, root) # Gathering data from all cores to master core
 t = time.time() - t
@@ -84,17 +96,25 @@ t_tot += t # Add posterior calculation time to total execution time
 # First posterior analysis running on master core
 if (rank == root):
     
-    # Info
-    print("\n#####################################################################\n")
-    print("Number of Iterations: %i" % (n))
-    print("Number of Posteriors: %i" % (repeat))
-    print("\n#####################################################################\n")
-    print("Posterior No. 1")
-    print("Execution Time: %.3f s" % (t))
-    print("eps = %.2f" % (eps))
-    print("Priors' Ranges:")
+    log = open("log%s.out" % (datetime_now.replace(" ", "_")), "w")
+    
+    #Info
+    log.write(datetime_now + "\n\n")
+    log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+    log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+    log.write("Rejection ABC fitting of epidemic curves\n\n")
+    log.write("Model: %s\n" % (model.name))
+    log.write("Parameters: " + ", ".join(model.params))
+    log.write("\n#####################################################################\n\n")
+    log.write("Number of Iterations: %i\n" % (n))
+    log.write("Number of Posteriors: %i\n" % (repeat))
+    log.write("\n#####################################################################\n\n")
+    log.write("Posterior No. 1\n")
+    log.write("Execution Time: %.3f s\n" % (t))
+    log.write("Tolerance: eps = %.2f\n" % (eps))
+    log.write("\nPriors' Ranges:\n\n")
     for i in range(len(priors)):
-        print("\t %f <-> %f" % tuple(priors[i]))
+        log.write("\t %s" % (model.params[i]) + ": %f <-> %f\n" % tuple(priors[i]))
     
     post = np.concatenate(post) # Join results from different cores in a numpy array
     
@@ -102,7 +122,7 @@ if (rank == root):
     plt.figure(figsize=(15, 12))
     plt.suptitle("Posterior Distributions", fontsize=40)
     for i in range(0, len(post[0])-1):
-        plt.subplot(2,2,i+1)
+        plt.subplot(2,5,i+1)
         plt.hist(post[:,i], bins=20, density=True)
         plt.title("Model Parameter %i" % (i+1), fontsize=26)
         plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
@@ -110,12 +130,15 @@ if (rank == root):
     plt.subplots_adjust(hspace=0.3, wspace=0.2)
     plt.savefig(r"posterior.png", format="png", dpi=300, bbox_to_inches=None)
     
-    p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
+    # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
+    p = post[np.where(post[:,-1] == np.min(post[:,-1]))[0][0]][:-1]
     p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
 
-    print("\nEstimated parameters (av +/- std):")
+    log.write("\nEstimated parameters (av +/- std):\n\n")
     for i in range(len(p)):
-        print("\t %f +/- %f" % (p[i], p_std[i]))
+        log.write("\t %s" % (model.params[i]) + ": %f +/- %f\n" % (p[i], p_std[i]))
+        
+    log.write("\nPosterior distribution on file posterior.png\n")
     
     params = np.concatenate((p,p_std)).reshape((2, len(p))) # Join parameters and errors in a numpy array
     
@@ -131,52 +154,52 @@ params = comm.bcast(params, root) # Share posterior analysis results with other 
 ##########################################################################
 
 # Same procedure for the calculation of following posteriors
-for i in range(repeat-1):
+# for i in range(repeat-1):
     
-    # Get last calculated parameters and errors
-    p = params[0]
-    p_std = params[1]
+#     # Get last calculated parameters and errors
+#     p = params[0]
+#     p_std = params[1]
     
-    # Define new priors
-    for j in range(len(priors)):
+#     # Define new priors
+#     for j in range(len(priors)):
         
-        priors[j] = [np.max([0,p[j]-p_std[j]]), p[j]+p_std[j]]
+#         priors[j] = [np.max([0,p[j]-p_std[j]]), p[j]+p_std[j]]
         
-    t = time.time()
-    post_ = rejABC(SIR_sol, priors, x, y, y0, eps, n_sample=np.int(n/size))
+#     t = time.time()
+#     post_ = rejABC(SEIHRD_sol, priors, x, y, y0, eps, n_sample=np.int(n/size))
     
-    post = comm.gather(post_, root)
-    t = time.time() - t
-    t_tot += t
+#     post = comm.gather(post_, root)
+#     t = time.time() - t
+#     t_tot += t
     
-    if (rank == root):
+#     if (rank == root):
     
-        print("\n#####################################################################\n")
-        print("Posterior No. %i" % (i+2))
-        print("Execution Time: %.3f s" % (t))
-        print("eps = %.2f" % (eps))
-        print("Priors' Ranges:")
-        for j in range(len(priors)):
-            print("\t %f <-> %f" % tuple(priors[j]))
+#         log.write("\n#####################################################################\n\n")
+#         log.write("Posterior No. %i\n" % (i+2))
+#         log.write("Execution Time: %.3f s\n" % (t))
+#         log.write("Tolerance: eps = %.2f\n" % (eps))
+#         log.write("\nPriors' Ranges:\n\n")
+#         for j in range(len(priors)):
+#             log.write("\t %f <-> %f\n" % tuple(priors[j]))
         
-        post = np.concatenate(post)
+#         post = np.concatenate(post)
         
-        p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1])
-        p_std = np.std(post[:,:-1], axis=0)
+#         p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1])
+#         p_std = np.std(post[:,:-1], axis=0)
     
-        print("\nEstimated parameters (av +/- std):")
-        for j in range(len(p)):
-            print("\t %f +/- %f" % (p[j], p_std[j]))
+#         log.write("\nEstimated parameters (av +/- std):\n\n")
+#         for j in range(len(p)):
+#             log.write("\t %f +/- %f\n" % (p[j], p_std[j]))
         
-        params = np.concatenate((p,p_std)).reshape((2, len(p)))
+#         params = np.concatenate((p,p_std)).reshape((2, len(p)))
         
-        eps = np.mean(post[:,-1])
+#         eps = np.mean(post[:,-1])
     
-    else:
+#     else:
         
-        params = None
+#         params = None
     
-    params = comm.bcast(params, root)
+#     params = comm.bcast(params, root)
 
 ##########################################################################
 
@@ -185,13 +208,17 @@ if (rank == root):
 
     p = params[0]
     p_std = params[1]
-        
-    print("\nTotal time on ABC: %.3f" %(t_tot))
+    
+    log.write("\n#####################################################################\n\n")    
+    log.write("Total time on ABC: %.3f s\n" %(t_tot))
+    log.write("\nFit on file model_fit.png")
+    log.close()
+    
     plt.figure(figsize=(15, 10))
     plt.scatter(x, y[0], facecolors="none", edgecolors="red",  label="Infected Data")
-    plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Recovered Data")
-    plt.plot(x, SIR_sol(x, p, y0)[0], lw=3, color="red", label="Infected Fit")
-    plt.plot(x, SIR_sol(x, p, y0)[1], lw=3, color="green", label="Recovered Fit")
-    plt.xlabel("Days since first infection", fontsize=26)
+    plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Dead Data")
+    plt.plot(x, model.infected_dead(x, p, y0)[0], lw=3, color="red", label="Infected Fit")
+    plt.plot(x, model.infected_dead(x, p, y0)[1], lw=3, color="green", label="Dead Fit")
+    plt.xlabel("Days", fontsize=26)
     plt.legend()
     plt.savefig(r"model_fit.png", format="png", dpi=300, bbox_to_inches=None)
