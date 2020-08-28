@@ -37,45 +37,40 @@ root = 0 # Master core
 rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
-##########################################################################
-
-# Import data
-# data = pd.read_csv(r"covid_19_clean_complete.csv")
-# germany = data[data["Country/Region"] == "Germany"] # Germany data
-
-# # Data organization
-# start = np.where(germany.Active!=0)[0][0] # First day with more than zero infected people
-# x = np.linspace(start, len(germany), len(germany[start:])) # Days from start as natural numbers
-# y = np.concatenate((germany.Active[start:], germany.Recovered[start:])).reshape(2, len(germany[start:])) # Germany's Active and Recovered data
-
 #######################################################################################
 # Uncomment to run an example of loading data (do not forget to uncomment the import) #
 # TODO: use this data after inserting the new models                                  #
 #######################################################################################
 df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
-print(df_brazil_state_cases)
-rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
-print(rj_state_cases)
-rj_state_cities_cases = LoadData.getBrazilStateCityDataFrame("RJ", True)
-print(rj_state_cities_cases)
-petropolis_cities_cases = LoadData.getBrazilCityDataFrame(rj_state_cities_cases, "Petrópolis/RJ")
-print(petropolis_cities_cases)
+# print(df_brazil_state_cases)
+# rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
+# print(rj_state_cases)
+# rj_state_cities_cases = LoadData.getBrazilStateCityDataFrame("RJ", True)
+# print(rj_state_cities_cases)
+# petropolis_cities_cases = LoadData.getBrazilCityDataFrame(rj_state_cities_cases, "Petrópolis/RJ")
+# print(petropolis_cities_cases)
 #######################################################################################
 
-##########################################################################
+# Execution date and time
+datetime_now = str(datetime.datetime.now()).split(".")[0]
 
-df_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "DF")
+# Location
+location = ["DF"]
 
-model = epi_mod.SIRD
+# Get data
+data = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, location[-1])
+
+# Choose model
+model = epi_mod.SEIRD
 
 # Initial conditions (SIRD)
 x = np.array(df_state_cases.day)
 y = np.array(df_state_cases[["confirmed", "dead"]].T)
-y0 = np.zeros(model.nparams)
+y0 = np.zeros(model.ncomp)
 y0[-2:] = df_state_cases.loc[0,["confirmed", "dead"]]
 
 # Ranges for initial uniform parameter priors (beta, N, gamma)
-priors = np.array([[0,1], [3e4, 3e6], [0, 1], [0,1]], dtype=np.float64)
+priors = np.array([[0,1], [3e4, 3e6], [0, 1], [0,1], [0, 1], [0,1]], dtype=np.float64)
 
 n = 100000 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
@@ -101,23 +96,25 @@ t_tot += t # Add posterior calculation time to total execution time
 # First posterior analysis running on master core
 if (rank == root):
     
-    # log = open("log%s.out" % (str(datetime.datetime.now()).replace(" ", "_").split(".")[0]), "w")
+    log = open("log%s.out" % (datetime_now.replace(" ", "_")), "w")
     
-    # Info
-    # log.write("Rejection ABC fitting of epidemic curves\n\n")
-    # log.write("Model: SIRD\n")
-    # param_names = ("beta", "N", "gamma", "mu")
-    # log.write("Parameters: %s, %s, %s, %s\n" % param_names)
-    # log.write("\n#####################################################################\n\n")
-    # log.write("Number of Iterations: %i\n" % (n))
-    # log.write("Number of Posteriors: %i\n" % (repeat))
-    # log.write("\n#####################################################################\n\n")
-    # log.write("Posterior No. 1\n")
-    # log.write("Execution Time: %.3f s\n" % (t))
-    # log.write("Tolerance: eps = %.2f\n" % (eps))
-    # log.write("\nPriors' Ranges:\n\n")
-    # for i in range(len(priors)):
-    #     log.write("\t %s" % (param_names[i]) + ": %f <-> %f\n" % tuple(priors[i]))
+    #Info
+    log.write(datetime_now + "\n\n")
+    log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+    log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+    log.write("Rejection ABC fitting of epidemic curves\n\n")
+    log.write("Model: %s\n" % (model.name))
+    log.write("Parameters: " + ", ".join(model.params))
+    log.write("\n#####################################################################\n\n")
+    log.write("Number of Iterations: %i\n" % (n))
+    log.write("Number of Posteriors: %i\n" % (repeat))
+    log.write("\n#####################################################################\n\n")
+    log.write("Posterior No. 1\n")
+    log.write("Execution Time: %.3f s\n" % (t))
+    log.write("Tolerance: eps = %.2f\n" % (eps))
+    log.write("\nPriors' Ranges:\n\n")
+    for i in range(len(priors)):
+        log.write("\t %s" % (model.params[i]) + ": %f <-> %f\n" % tuple(priors[i]))
     
     post = np.concatenate(post) # Join results from different cores in a numpy array
     
@@ -137,11 +134,11 @@ if (rank == root):
     p = post[np.where(post[:,-1] == np.min(post[:,-1]))[0][0]][:-1]
     p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
 
-    # log.write("\nEstimated parameters (av +/- std):\n\n")
-    # for i in range(len(p)):
-    #     log.write("\t %s" % (param_names[i]) + ": %f +/- %f\n" % (p[i], p_std[i]))
+    log.write("\nEstimated parameters (av +/- std):\n\n")
+    for i in range(len(p)):
+        log.write("\t %s" % (model.params[i]) + ": %f +/- %f\n" % (p[i], p_std[i]))
         
-    # log.write("\nPosterior distribution on file posterior.png\n")
+    log.write("\nPosterior distribution on file posterior.png\n")
     
     params = np.concatenate((p,p_std)).reshape((2, len(p))) # Join parameters and errors in a numpy array
     
@@ -212,16 +209,16 @@ if (rank == root):
     p = params[0]
     p_std = params[1]
     
-    # log.write("\n#####################################################################\n\n")    
-    # log.write("Total time on ABC: %.3f s\n" %(t_tot))
-    # log.write("\nFit on file model_fit.png")
-    # log.close()
+    log.write("\n#####################################################################\n\n")    
+    log.write("Total time on ABC: %.3f s\n" %(t_tot))
+    log.write("\nFit on file model_fit.png")
+    log.close()
     
     plt.figure(figsize=(15, 10))
     plt.scatter(x, y[0], facecolors="none", edgecolors="red",  label="Infected Data")
     plt.scatter(x, y[1], facecolors="none", edgecolors="green", label="Dead Data")
     plt.plot(x, model.infected_dead(x, p, y0)[0], lw=3, color="red", label="Infected Fit")
     plt.plot(x, model.infected_dead(x, p, y0)[1], lw=3, color="green", label="Dead Fit")
-    plt.xlabel("Days since first infection", fontsize=26)
+    plt.xlabel("Days", fontsize=26)
     plt.legend()
     plt.savefig(r"model_fit.png", format="png", dpi=300, bbox_to_inches=None)
