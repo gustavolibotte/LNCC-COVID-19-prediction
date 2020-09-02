@@ -33,10 +33,10 @@ def rk4(f, y0, t, args, h=1.):
     
     for i in range(n-1):
         
-        k1 = f(y_[i], t_[i], args)
-        k2 = f(y_[i] + k1 * h / 2., t_[i] + h / 2., args)
-        k3 = f(y_[i] + k2 * h / 2., t_[i] + h / 2., args)
-        k4 = f(y_[i] + k3 * h, t_[i] + h, args)
+        k1 = f(t_[i], y_[i], args)
+        k2 = f(t_[i] + h / 2., y_[i] + k1 * h / 2., args)
+        k3 = f(t_[i] + h / 2., y_[i] + k2 * h / 2., args)
+        k4 = f(t_[i] + h, y_[i] + k3 * h, args)
         y_[i+1] = y_[i] + (h / 6.) * (k1 + 2*k2 + 2*k3 + k4)
     
     y = np.zeros((len(t), len(y0)))
@@ -54,6 +54,10 @@ class SIRD:
     SIRD epidemic model
     """
     
+    def __init__(self, dat):
+        
+        self.dat = dat
+    
     # SIRD parameters
     name = "SIRD"
     ncomp = len(name)
@@ -63,7 +67,7 @@ class SIRD:
     # Differential equations model
     @staticmethod
     @njit(fastmath=True)
-    def model(y, t, params):
+    def model(t, y, params):
         
         S, R, I, D = y
         beta, N, gamma, mu = params
@@ -100,6 +104,10 @@ class SEIRD:
     SEIRD epidemic model
     """
     
+    def __init__(self, dat):
+        
+        self.dat = dat
+    
     # SEIRD parameters
     name = "SEIRD"
     ncomp = len(name)
@@ -109,7 +117,7 @@ class SEIRD:
     # Differential equations model
     @staticmethod
     @njit(fastmath=True)
-    def model(y, t, params):
+    def model(t, y, params):
         
         S, E, R, I, D = y
         beta, N, gamma, mu, c, Pex = params
@@ -161,7 +169,7 @@ class SEIHRD:
     # Differential equations model
     @staticmethod
     @njit(fastmath=True)
-    def model(y, t, params):
+    def model(t, y, params):
     
         S, E, H, R, I, D = y
         beta, N, gamma, mu, c, Pex, Ph, th, gammah, muh = params
@@ -214,7 +222,7 @@ class SEIARD:
     # Differential equations model
     @staticmethod
     @njit(fastmath=True)
-    def model(y, t, params):
+    def model(t, y, params):
     
         S, E, A, R, I, D = y
         betaI, betaA, N, gamma, mu, c, Pa, gammaa = params
@@ -259,7 +267,7 @@ class SEITRD:
     
     # SEITRD parameters
     name = "SEITRD"
-    ncomp = len(name)
+    ncomp = 8
     params = [r"$\beta$", r"$N$", r"$\gamma_{I}$", r"$\mu$", r"$c$", r"$\kappa$", 
               r"$\tau_{t}$", r"$P_{t}$", r"$\gamma_{t}$", r"\mu_{t}"]
     nparams = len(params)
@@ -267,7 +275,7 @@ class SEITRD:
     # Differential equations model
     @staticmethod
     @njit(fastmath=True)
-    def model(y, t, params):
+    def model(t, y, params):
     
         S, E, I, R, D, Rt, T, Dt = y
         beta, N, gamma, mu, c, Pex, tt, Pt, gammat, mut = params
