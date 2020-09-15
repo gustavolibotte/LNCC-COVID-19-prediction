@@ -7,5 +7,9 @@
 #SBATCH -J teste                       #Nome job
 #SBATCH --exclusive                    #Utilização exclusiva dos nós durante a execução do job
 
+module load sequana/current
+module load anaconda3/2020.07_sequana
+module load openmpi/gnu/4.0.1_sequana
+
 python ../main/states_data_download.py
 mpiexec -n 1 python ../main/ABC_exec.py

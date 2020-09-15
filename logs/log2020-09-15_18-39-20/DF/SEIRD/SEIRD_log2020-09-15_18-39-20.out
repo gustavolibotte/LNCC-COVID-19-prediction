@@ -1,0 +1,45 @@
+2020-09-15_18-39-20
+
+Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)
+https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv
+
+Rejection ABC fitting of epidemic curves
+
+Model: SEIRD
+Parameters: $\beta$, $N$, $\gamma$, $\mu$, $c$, $\kappa$
+#####################################################################
+
+Number of Iterations: 100
+Number of Posteriors: 1
+
+#####################################################################
+
+Posterior No. 1
+Execution Time: 0.029 s
+Tolerance: eps = 8841.85
+
+Priors' Ranges:
+
+	 $\beta$: 0.000000 <-> 1.000000
+	 $N$: 30551.000000 <-> 1527574.000000
+	 $\gamma$: 0.000000 <-> 1.000000
+	 $\mu$: 0.000000 <-> 1.000000
+	 $c$: 0.000000 <-> 1.000000
+	 $\kappa$: 0.000000 <-> 1.000000
+
+Estimated parameters (av +/- std):
+
+	 $\beta$: 0.722900 +/- 0.252457
+	 $N$: 877539.889212 +/- 437654.707714
+	 $\gamma$: 0.904102 +/- 0.285877
+	 $\mu$: 0.745192 +/- 0.265033
+	 $c$: 0.370746 +/- 0.290766
+	 $\kappa$: 0.491482 +/- 0.288999
+
+Posterior distribution on file posterior_'param'.png
+
+#####################################################################
+
+Total time on ABC: 0.029 s
+
+Fit on file model_fit.png

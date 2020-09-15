@@ -158,8 +158,7 @@ for i in range(len(locations)):
         priors = np.array(priors, dtype=np.float64)
         
         # First run for numba pre compilation
-        # eps = np.max(y)/20
-        eps = 1000000
+        eps = np.max(y)/20
         rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=10)
         
         ##########################################################################
@@ -209,7 +208,7 @@ for i in range(len(locations)):
                 plt.title("Parameter %s posterior distribution" % (model.params[k]), fontsize=26)
                 plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
                 plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
-                plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","")), format="png", dpi=300, bbox_to_inches=None)
+                plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_to_inches=None)
                 plt.close()
             
             # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
