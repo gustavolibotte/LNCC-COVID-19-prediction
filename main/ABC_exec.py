@@ -81,7 +81,7 @@ models = open("modelsIN.txt", "r").read().split("\n")[:-1]
 
 if (rank == root):
     
-    os.mkdir("logs/log"+datetime_now)
+    os.mkdir("../logs/log"+datetime_now)
     wait_var = 0
 
 else:
@@ -94,7 +94,7 @@ for i in range(len(locations)):
     
     if (rank == root):
         
-        os.mkdir("logs/log"+datetime_now+"/"+locations[i])
+        os.mkdir("../logs/log"+datetime_now+"/"+locations[i])
         wait_var = 0
 
     else:
@@ -105,7 +105,7 @@ for i in range(len(locations)):
     
     for j in range(len(models)):
         
-        filepath = "logs/log"+datetime_now+"/"+locations[i]+"/"+models[j]
+        filepath = "../logs/log"+datetime_now+"/"+locations[i]+"/"+models[j]
         
         if (rank == root):
         
@@ -208,7 +208,11 @@ for i in range(len(locations)):
             # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
             p = post[np.where(post[:,-1] == np.min(post[:,-1]))[0][0]][:-1]
             p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
-        
+            
+            best_params = open(filepath+"/best_params.txt", "w")
+            best_params.write(" ".join([str(p[i]) for i in range(len(p))]))
+            best_params.close()
+            
             log.write("\nEstimated parameters (av +/- std):\n\n")
             for k in range(len(p)):
                 log.write("\t %s" % (model.params[k]) + ": %f +/- %f\n" % (p[k], p_std[k]))
