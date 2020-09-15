@@ -39,7 +39,7 @@ rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
 # Rejection ABC parameters
-n = 10000 # Number of samples
+n = 100 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
 # eps = 10000000 # Tolerance
 
@@ -83,6 +83,10 @@ locations = open("locationsIN.txt", "r").read().split("\n")[:-1]
 
 # Models
 models = open("modelsIN.txt", "r").read().split("\n")[:-1]
+
+if (os.path.exists("../logs/") == False):
+    
+    os.mkdir("../logs/")
 
 if (rank == root):
     
@@ -154,17 +158,17 @@ for i in range(len(locations)):
         priors = np.array(priors, dtype=np.float64)
         
         # First run for numba pre compilation
+        # eps = np.max(y)/20
+        eps = 1000000
         rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=10)
         
         ##########################################################################
         
         t_tot = 0 # Counting total execution time 
         
-        eps = np.max(y)/20
-        
         # First posterior calculation
         t = time.time()
-        post_ = rejABC(model.infected_dead, priors, x, y, y0, 0, n_sample=np.int(n/size)) # Posterior calculation
+        post_ = rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
         
         post = comm.gather(post_, root) # Gathering data from all cores to master core
         t = time.time() - t

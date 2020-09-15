@@ -72,7 +72,7 @@ class SIR:
     def model(t, y, params):
         
         S, I, R = y
-        beta, N, gamma, mu = params
+        beta, N, gamma = params
         
         return np.array([-beta*I*S/N,
                          beta*I*S/N-gamma*I,
