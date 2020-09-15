@@ -81,7 +81,7 @@ models = open("modelsIN.txt", "r").read().split("\n")[:-1]
 
 if (rank == root):
     
-    os.mkdir("log"+datetime_now)
+    os.mkdir("logs/log"+datetime_now)
     wait_var = 0
 
 else:
@@ -94,7 +94,7 @@ for i in range(len(locations)):
     
     if (rank == root):
         
-        os.mkdir("log"+datetime_now+"/"+locations[i])
+        os.mkdir("logs/log"+datetime_now+"/"+locations[i])
         wait_var = 0
 
     else:
@@ -105,7 +105,7 @@ for i in range(len(locations)):
     
     for j in range(len(models)):
         
-        filepath = "log"+datetime_now+"/"+locations[i]+"/"+models[j]
+        filepath = "logs/log"+datetime_now+"/"+locations[i]+"/"+models[j]
         
         if (rank == root):
         

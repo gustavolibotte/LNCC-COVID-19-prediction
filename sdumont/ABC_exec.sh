@@ -7,5 +7,5 @@
 #SBATCH -J teste                       #Nome job
 #SBATCH --exclusive                    #Utilização exclusiva dos nós durante a execução do job
 
-python states_data_download.py
-mpiexec -n 1 python ABC_exec.py
+python ../main/states_data_download.py
+mpiexec -n 1 python ../main/ABC_exec.py
