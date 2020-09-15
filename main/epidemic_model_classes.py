@@ -48,7 +48,70 @@ def rk4(f, y0, t, args, h=1.):
     return y
 
 ##########################################################################
+
+class SIR:
+    """
+    SIR epidemic model
+    """
     
+    def __init__(self, dat):
+        
+        self.dat = dat
+    
+    # SIRD parameters
+    name = "SIR"
+    ncomp = len(name)
+    params = [r"$\beta$", r"$N$", r"$\gamma$"]
+    nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
+    
+    # Differential equations model
+    @staticmethod
+    @njit(fastmath=True)
+    def model(t, y, params):
+        
+        S, I, R = y
+        beta, N, gamma, mu = params
+        
+        return np.array([-beta*I*S/N,
+                         beta*I*S/N-gamma*I,
+                         gamma*I])
+    
+    # SIRD equations solution
+    @classmethod
+    def solution(cls, t, params, y0):
+    
+        y0[0] = params[1] - (y0[1] + y0[2])
+        
+        sol = rk4(cls.model, y0, t, params)
+
+        return sol
+    
+    # SIRD model total infected and dead output
+    @classmethod
+    def infected_dead(cls, t, params, y0):
+        
+        y0[0] = params[1] - (y0[1] + y0[2])
+        
+        sol = rk4(cls.model, y0, t, params)
+        
+        I_tot = np.sum(sol[:,1:], axis = 1)
+        D = sol[:,2]
+        return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
+    
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
+
 class SIRD:
     """
     SIRD epidemic model

@@ -1,0 +1,53 @@
+2020-09-15_02-31-35
+
+Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)
+https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv
+
+Rejection ABC fitting of epidemic curves
+
+Model: SEIHRD
+Parameters: $\beta$, $N$, $\gamma$, $\mu$, $c$, $\kappa$, $P_{h}$, \tau_{h}, $\gamma_{h}$, $\mu_{h}$
+#####################################################################
+
+Number of Iterations: 3000000
+Number of Posteriors: 1
+
+#####################################################################
+
+Posterior No. 1
+Execution Time: 33.329 s
+Tolerance: eps = 5000.00
+
+Priors' Ranges:
+
+	 $\beta$: 0.000000 <-> 1.000000
+	 $N$: 30551.000000 <-> 1527574.000000
+	 $\gamma$: 0.000000 <-> 1.000000
+	 $\mu$: 0.000000 <-> 1.000000
+	 $c$: 0.000000 <-> 1.000000
+	 $\kappa$: 0.000000 <-> 1.000000
+	 $P_{h}$: 0.000000 <-> 1.000000
+	 \tau_{h}: 1.000000 <-> 30.000000
+	 $\gamma_{h}$: 0.000000 <-> 1.000000
+	 $\mu_{h}$: 0.000000 <-> 1.000000
+
+Estimated parameters (av +/- std):
+
+	 $\beta$: 0.889107 +/- 0.230528
+	 $N$: 590156.523729 +/- 444484.933093
+	 $\gamma$: 0.974294 +/- 0.280363
+	 $\mu$: 0.013814 +/- 0.286959
+	 $c$: 0.838011 +/- 0.292396
+	 $\kappa$: 0.619198 +/- 0.283169
+	 $P_{h}$: 0.266015 +/- 0.273458
+	 \tau_{h}: 29.937618 +/- 8.458213
+	 $\gamma_{h}$: 0.619591 +/- 0.288866
+	 $\mu_{h}$: 0.747522 +/- 0.289188
+
+Posterior distribution on file posterior_'param'.png
+
+#####################################################################
+
+Total time on ABC: 33.329 s
+
+Fit on file model_fit.png
