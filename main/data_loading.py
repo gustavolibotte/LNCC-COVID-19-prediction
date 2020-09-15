@@ -50,7 +50,7 @@ class LoadData:
         if store == True:
             last_date = str(df_brazil_states_cases.date.iloc[-1])
             df_brazil_states_cases.to_csv(f"{ProjectConsts.DATA_PATH}/" + last_date + "_Brazil_by_day.csv", index=False)
-        return df_brazil_states_cases
+        return df_brazil_states_cases, f"{ProjectConsts.DATA_PATH}/" + last_date + "_Brazil_by_day.csv"
     
     @staticmethod
     def getBrazilStateDataFrame(df_brazil_states_cases: pd.DataFrame, state_name: str) -> pd.DataFrame:

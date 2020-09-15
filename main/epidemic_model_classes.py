@@ -63,6 +63,8 @@ class SIRD:
     ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$"]
     nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
     
     # Differential equations model
     @staticmethod
@@ -99,6 +101,18 @@ class SIRD:
         D = sol[:,3]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
     
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
+    
 class SEIRD:
     """
     SEIRD epidemic model
@@ -113,6 +127,8 @@ class SEIRD:
     ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\kappa$"]
     nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
     
     # Differential equations model
     @staticmethod
@@ -141,7 +157,7 @@ class SEIRD:
     # SEIRD model total infected and dead output
     @classmethod
     def infected_dead(cls, t, params, y0):
-    
+        
         y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4])
         
         sol = rk4(cls.model, y0, t, params)
@@ -149,6 +165,18 @@ class SEIRD:
         I_tot = np.sum(sol[:,2:], axis = 1)
         D = sol[:,4]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
+    
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
     
 class SEIHRD:
     """
@@ -165,6 +193,8 @@ class SEIHRD:
     params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\kappa$", 
               r"$P_{h}$", r"\tau_{h}", r"$\gamma_{h}$", r"$\mu_{h}$"]
     nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
     
     # Differential equations model
     @staticmethod
@@ -203,6 +233,18 @@ class SEIHRD:
         D = sol[:,5]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
     
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
+    
 class SEIARD:
     """
     SEIARD epidemic model
@@ -218,6 +260,8 @@ class SEIARD:
     params = [r"$\beta_{I}$", r"$\beta_{A}$", r"$N$", r"$\gamma_{I}$", r"$\mu$",
               r"$c$", r"$\alpha$", r"$\gamma_{A}$"]
     nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
     
     # Differential equations model
     @staticmethod
@@ -238,7 +282,7 @@ class SEIARD:
     @classmethod
     def solution(cls, t, params, y0):
     
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4] + y0[5])
+        y0[0] = params[2] - (y0[1] + y0[2] + y0[3] + y0[4] + y0[5])
     
         sol = rk4(cls.model, y0, t, params)
 
@@ -248,13 +292,25 @@ class SEIARD:
     @classmethod
     def infected_dead(cls, t, params, y0):
     
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4] + y0[5])
+        y0[0] = params[2] - (y0[1] + y0[2] + y0[3] + y0[4] + y0[5])
     
         sol = rk4(cls.model, y0, t, params)
         
-        I_tot = np.sum(sol[:,3:], axis = 1)
+        I_tot = np.sum(sol[:,3:], axis=1)
         D = sol[:,5]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
+    
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
     
 class SEITRD:
     """
@@ -271,6 +327,8 @@ class SEITRD:
     params = [r"$\beta$", r"$N$", r"$\gamma_{I}$", r"$\mu$", r"$c$", r"$\kappa$", 
               r"$\tau_{t}$", r"$P_{t}$", r"$\gamma_{t}$", r"\mu_{t}"]
     nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
     
     # Differential equations model
     @staticmethod
@@ -310,3 +368,16 @@ class SEITRD:
         I_tot = np.sum(sol[:,5:], axis = 1)
         D = sol[:,7]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
+    
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
+    

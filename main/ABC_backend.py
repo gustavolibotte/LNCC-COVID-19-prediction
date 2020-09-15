@@ -12,8 +12,6 @@ import warnings
 warnings.simplefilter('ignore', category=numba.NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=numba.NumbaPendingDeprecationWarning)
 
-data = pd.read_csv(r"covid_19_clean_complete.csv")
-
 ##########################################################################
 
 # Function to sort random number according to a given histogram
@@ -44,7 +42,7 @@ def sort(n, hist, bins):
 ##########################################################################
 
 # Rejection ABC
-@njit(fastmath=True)
+# @njit(fastmath=True)
 def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample):
     # model: function to be fit; 
     # prior_params: list of ranges for uniform priors;
@@ -56,7 +54,7 @@ def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample):
     
     n_mp = len(prior_params) # Number of model parameters to be fit
     
-    p = np.zeros(n_mp+1) # Array of parameters
+    p = np.zeros(n_mp+1, dtype=np.float64) # Array of parameters
     
     post = np.zeros((1,n_mp+1)) # Array to build posterior distribution
     
