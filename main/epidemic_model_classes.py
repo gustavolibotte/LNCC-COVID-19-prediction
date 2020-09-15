@@ -375,7 +375,7 @@ class SEIARD:
         
         cls.best_params = best_params
     
-class SEITRD:
+class SEIQRD:
     """
     SEITRD epidemic model
     """
@@ -384,11 +384,11 @@ class SEITRD:
         
         self.dat = dat
     
-    # SEITRD parameters
-    name = "SEITRD"
+    # SEIQRD parameters
+    name = "SEIQRD"
     ncomp = 8
-    params = [r"$\beta$", r"$N$", r"$\gamma_{I}$", r"$\mu$", r"$c$", r"$\kappa$", 
-              r"$\tau_{t}$", r"$P_{t}$", r"$\gamma_{t}$", r"\mu_{t}"]
+    params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\sigma$", 
+              r"$\q_{1}$", r"$q_{2}$", r"$\q_{3}$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
@@ -398,19 +398,19 @@ class SEITRD:
     @njit(fastmath=True)
     def model(t, y, params):
     
-        S, E, I, R, D, Rt, T, Dt = y
-        beta, N, gamma, mu, c, Pex, tt, Pt, gammat, mut = params
+        S, E, Sq, Eq, R, Iq, I, D = y
+        beta, N, gamma, mu, c, sigma, q1, q2, q3 = params
         
-        return np.array([-beta*(1-Pex)*I*S/N - beta*Pex*E*S/N,
-                         beta*(1-Pex)*I*S/N + beta*Pex*E*S/N - c*E,
-                         c*E - gamma*I - mu*I - (Pt/tt)*I,
-                         gamma*I,
-                         mu*I,
-                         gammat*T,
-                         (Pt/tt)*I - gammat*T - mut*T,
-                         mut*T,])
+        return np.array([-beta*I*S/N - sigma*E*S/N - q1*S, #S
+                         beta*I*S/N + sigma*E*S/N - c*E - q2*E, #E
+                         q1*S, #Sq
+                         q2*E - c*Eq, #Eq
+                         gamma*Iq, #R
+                         q3*I + c*Eq - gamma*Iq - mu*Iq, #Iq
+                         c*E - q3*I, #I
+                         mu*Iq]) #D
     
-    # SEITRD equations solution
+    # SEIQRD equations solution
     @classmethod
     def solution(cls, t, params, y0):
     
@@ -420,7 +420,7 @@ class SEITRD:
 
         return sol
     
-    # SEITRD model total infected and dead output
+    # SEIQRD model total infected and dead output
     @classmethod
     def infected_dead(cls, t, params, y0):
     
@@ -428,7 +428,7 @@ class SEITRD:
     
         sol = rk4(cls.model, y0, t, params)
         
-        I_tot = np.sum(sol[:,5:], axis = 1)
+        I_tot = np.sum(sol[:,4:], axis = 1)
         D = sol[:,7]
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
     
