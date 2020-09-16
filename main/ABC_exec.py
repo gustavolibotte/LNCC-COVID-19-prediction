@@ -120,7 +120,7 @@ for i in range(len(locations)):
     if (rank == root):
         
         os.mkdir("../logs/log"+datetime_now+"/"+locations[i])
-        log_geral.write("Location: "+locations[i]+"\n\n")
+        log_geral.write("Location: "+locations[i]+"\n")
         
         wait_var = 0
 
@@ -320,7 +320,7 @@ for i in range(len(locations)):
                 aic_win = aic
                 winner = j
             
-            log_geral.write(model.name+":\n")
+            log_geral.write("\n"+model.name+":")
             log_geral.write("\n\tRMSD: %f" % (L))
             log_geral.write("\n\tAIC: %f\n" % (aic))
             
