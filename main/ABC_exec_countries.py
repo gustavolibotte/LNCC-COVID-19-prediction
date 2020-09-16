@@ -57,14 +57,16 @@ repeat = 1 # Number of posteriors to be calculated
 # print(petropolis_cities_cases)
 #######################################################################################
 
-data_path = open("data_path.txt", "r").read()
-df_brazil_state_cases = pd.read_csv(data_path)
+df_countries = pd.read_csv(r"/home/joaop/Documents/CLICKCOVID_LNCC/covid_19_clean_complete.csv")
 
 # States' populations
-pop_state_dat = open(f"{ProjectConsts.DATA_PATH}/pop_states.csv", "r").read().split("\n")
+pop_state_dat = open(f"{ProjectConsts.DATA_PATH}/population_by_country_2020.csv", "r")
+pop_state_dat.readline()
+pop_state_dat = pop_state_dat.read().split("\n")
+
 pop_state = {}
 for i in range(len(pop_state_dat)-1):
-    pop_state_dat[i] = pop_state_dat[i].split(", ")
+    pop_state_dat[i] = pop_state_dat[i].split(",")
     pop_state[pop_state_dat[i][0]] = int(pop_state_dat[i][1])
 
 # Execution date and time
@@ -79,7 +81,7 @@ else:
 datetime_now = comm.bcast(datetime_now, root)
 
 # Locations
-locations = open("locationsIN.txt", "r").read().split("\n")[:-1]
+locations = open("locations_countriesIN.txt", "r").read().split("\n")[:-1]
 
 # Models
 models = open("modelsIN.txt", "r").read().split("\n")[:-1]
@@ -97,8 +99,8 @@ if (rank == root):
     
     log_geral = open("../logs/log"+datetime_now+"/log_geral"+datetime_now+".txt", "w")
     log_geral.write(datetime_now + "\n\n")
-    log_geral.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-    log_geral.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+    log_geral.write("Data Source: COVID-19 Dataset (on Kaggle)\n")
+    log_geral.write("https://www.kaggle.com/imdevskp/corona-virus-report\n\n")
     log_geral.write("Rejection ABC fitting of epidemic curves\n")
     log_geral.write("\nModels: "+", ".join(models))
     log_geral.write("\nLocations: "+", ".join(locations))
@@ -146,16 +148,17 @@ for i in range(len(locations)):
         wait_var = comm.gather(wait_var, root)
         
         # Get data
-        data = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, locations[i])
+        data = df_countries[df_countries["Country/Region"] == "Germany"][["Confirmed", "Deaths"]]
+        start = np.where(data["Confirmed"] >= 5)[0][0]
         
         # Choose model
         model = getattr(epi_mod, models[j])
         
         # Initial conditions
-        x = np.array(data.day, dtype=np.float64)
-        y = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)
+        x = np.arange(0, len(data[start:]))
+        y = np.array(data[start:]).T
         y0 = np.zeros(model.ncomp, dtype=np.float64)
-        y0[-2:] = data.loc[0,["confirmed", "dead"]]
+        y0[-2:] = y[:,0]
         
         # Ranges for initial uniform parameter priors (beta, N, gamma)
         priors = []
