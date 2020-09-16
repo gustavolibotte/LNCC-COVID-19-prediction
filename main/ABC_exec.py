@@ -167,7 +167,7 @@ for i in range(len(locations)):
         
         # First posterior calculation
         t = time.time()
-        post_ = rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=np.int(n/size)) # Posterior calculation
+        post_ = rejABC(model.infected_dead, priors, x, y, y0, eps, n_sample=np.int(n/size))[:np.int(1e5/size)] # Posterior calculation
         
         post = comm.gather(post_, root) # Gathering data from all cores to master core
         t = time.time() - t

@@ -387,8 +387,8 @@ class SEIQRD:
     # SEIQRD parameters
     name = "SEIQRD"
     ncomp = 8
-    params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\sigma$", 
-              r"$\q_{1}$", r"$q_{2}$", r"$\q_{3}$"]
+    params = [r"$\beta$", r"$N$", r"$\gamma$", r"$\mu$", r"$c$", r"$\sigma$",
+              r"$q_{1}$", r"$q_{2}$", r"$q_{3}$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
