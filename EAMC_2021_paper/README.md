@@ -1,6 +1,6 @@
 # EAMC_2021_paper :chart_with_upwards_trend: :page_facing_up:
 
-WRITE SOMETHING NICE HERE
+WRITE SOMETHING NICE HERE (PLACE HOME PAGE OF THE EVENT)
 
 Dataset used was retrieved from [Kaggle](https://www.kaggle.com/imdevskp/corona-virus-report)
 
