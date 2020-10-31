@@ -13,13 +13,8 @@ This repository is the best in the world
 * [Jupyter notebook](https://github.com/gustavolibotte/LNCC-COVID-19-prediction/blob/master/EAMC_2021_paper/main/Correlation_Param.ipynb) of Correlation between Parameters :notebook:
 
 ```python
-def MULEKE(playboy):
-  for CHATUBA in range(len(MESQUITA)):
-    if CHATUBA == marra:
-      print('Bota na cabeça que estilo não é marra')
-    else:
-      print('Eai marquinhos DJ')
-  return funkeiro
+def function(x):
+  return something
 ```
 
 Correlation Matrix: 
