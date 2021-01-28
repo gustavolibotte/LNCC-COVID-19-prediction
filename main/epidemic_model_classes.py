@@ -26,7 +26,7 @@ def rk4(f, y0, t, args, h=1.):
     # args: extra function parameters;
     # h: time step
     
-    t_ = np.arange(t[0], t[-1], h)
+    t_ = np.arange(t[0], t[-1]+h, h)
     n = len(t_)
     y_ = np.zeros((n, len(y0)))
     y_[0] = y0
