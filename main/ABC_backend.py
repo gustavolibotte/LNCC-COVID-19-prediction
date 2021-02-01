@@ -71,7 +71,7 @@ def sort(n, hist, bins):
 
 # Rejection ABC
 # @njit(fastmath=True)
-def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max):
+def rejABC(model, weights, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max):
     # model: function to be fit; 
     # prior_params: list of ranges for uniform priors;
     # dat_t: data time;
@@ -93,7 +93,7 @@ def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max):
         
             p[j] = prior_params[j][0](prior_params[j][1], prior_params[j][2])
         
-        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2))/len(dat_t)
+        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2*weights.reshape((-1,1))))/len(dat_t)/np.sum(weights)
         p[-1] = d # Model-data distance
         
         # Check parameters and add sample to posterior distribution
@@ -106,7 +106,7 @@ def rejABC(model, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max):
         
     return post[1:]
 
-def smcABC(model, hist, bins, n_bins, p_std, dat_t, dat_y, y0, eps, n_sample, n_max):
+def smcABC(model, weights, hist, bins, n_bins, p_std, dat_t, dat_y, y0, eps, n_sample, n_max):
     # model: function to be fit; 
     # hist+bins: past posterior for new prior
     # n_bins: number of bins to be used to make new prior from last posterior
@@ -131,7 +131,7 @@ def smcABC(model, hist, bins, n_bins, p_std, dat_t, dat_y, y0, eps, n_sample, n_
             # p[j] = np.random.uniform(prior_params[j,0], prior_params[j,1])
             p[j] = sort(1, hist[j], bins[j]) + np.random.normal(scale=p_std[j]/n_bins)
         
-        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2))/len(dat_t)
+        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2*weights.reshape((-1,1))))/len(dat_t)/np.sum(weights)
         p[-1] = d # Model-data distance
         
         # Check parameters and add sample to posterior distribution
