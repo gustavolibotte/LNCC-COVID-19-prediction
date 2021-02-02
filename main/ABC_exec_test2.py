@@ -37,9 +37,10 @@ size = comm.size # Number of used cores
 n = 1000 # Number of samples
 repeat = 1 # Number of posteriors to be calculated
 # eps = 10000000 # Tolerance
-day_step = 60
+day_step = 5
 day_set_size = 30
 val_set_size = 10
+day_start = 80
 
 #######################################################################################
 # Uncomment to run an example of loading data (do not forget to uncomment the import) #
@@ -111,8 +112,9 @@ if (rank == root):
                 
                 for l in range(n_sets):
                     
-                    os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k]+"/"+"%i_days"%(l*day_step+day_set_size))
-
+                    if (l*day_step+day_set_size >= day_start):
+                    
+                        os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k]+"/"+"%i_days"%(l*day_step+day_set_size))
     aic_winner = 0
     aic_win = np.finfo(np.float64).max
     rmsd_winner = 0
@@ -200,7 +202,14 @@ for i in range(len(locations)):
         
             days_sets.append(x_total[day_step*k:day_step*k+day_set_size])
         
-        for days_idx in range(len(days_sets)):
+        for k in range(len(days_sets)):
+            
+            if (days_sets[k][-1] >= day_start+x_total[0]-1):
+                
+                start_idx = k
+                break
+        
+        for days_idx in range(start_idx, len(days_sets)):
             
             filepath =  "../logs/log"+datetime_now+"/Posterior1"+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
         
