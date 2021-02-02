@@ -34,10 +34,10 @@ rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
 # Rejection ABC parameters
-n = 1000000 # Number of samples
-repeat = 5 # Number of posteriors to be calculated
+n = 1000 # Number of samples
+repeat = 1 # Number of posteriors to be calculated
 # eps = 10000000 # Tolerance
-day_step = 10
+day_step = 60
 day_set_size = 30
 val_set_size = 10
 
@@ -136,6 +136,8 @@ if (rank == root):
     log_geral.write("\n\n#####################################################################\n\n")
     log_geral.write("Number of Iterations: %i\n" % (n))
     log_geral.write("Number of Posteriors: %i\n" % (repeat))
+    log_geral.write("Training window size: %i\n" % (day_set_size))
+    log_geral.write("Validation window size: %i\n" % (val_set_size))
     log_geral.write("\n############################   RESULTS   ############################\n\n")
     
     wait_var = 0
@@ -204,12 +206,16 @@ for i in range(len(locations)):
         
             # Initial conditions
             x = days_sets[days_idx]
+            x_to_end = x_total[np.where(x_total == days_sets[days_idx][0])[0][0]:]
             x_val = (days_sets[days_idx]+val_set_size)[-val_set_size:]
             x_dat_val = np.concatenate((x, x_val))
             y = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,days_sets[days_idx].astype(np.int)-int(days_sets[0][0])]
+            y_to_end = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx][0].astype(np.int)-int(days_sets[0][0])):]
             y_val = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx]+val_set_size)[-val_set_size:].astype(np.int)-int(days_sets[0][0])]
             y_dat_val = np.concatenate((y, y_val), axis=1)
+            
             y0 = np.zeros(model.ncomp, dtype=np.float64)
+            y0[-1] = data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["dead"]]
             y0[-3] = data.loc[max(int(days_sets[days_idx][0]-days_sets[0][0])-20,0),["confirmed"]]
 
             if (y0[-3] == data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["confirmed"]].values[0]):
@@ -219,9 +225,7 @@ for i in range(len(locations)):
 
             else:
             
-                y0[-2] = data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["confirmed"]] - y0[-3]
-            
-            y0[-1] = data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["dead"]]
+                y0[-2] = data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["confirmed"]] - y0[-3] - y0[-1]
             
             # Ranges for initial uniform parameter priors (beta, N, gamma)
             priors = model.priors
@@ -235,7 +239,7 @@ for i in range(len(locations)):
             # First run for numba pre compilation
             eps = np.max(y)/20
             weights = np.array([1,1])
-            rejABC(model.infected_dead, weights, priors, x, y, y0, eps, 10, 1e6/size)
+            rejABC(model.infected_dead, weights, priors, x, y, y0, eps, 10, 1e5/size)
             
             ##########################################################################
             
@@ -243,8 +247,9 @@ for i in range(len(locations)):
             
             # First posterior calculation
             t = time.time()
-            weights = np.array([1,1])
-            post_ = rejABC(model.infected_dead, weights, priors, x, y, y0, eps, np.int(n/size), 1e6/size) # Posterior calculation
+            weights_str = "[1, np.sum(y0[-3:])/max(1,y0[-1])]"
+            weights = np.array(eval(weights_str))
+            post_ = rejABC(model.infected_dead, weights, priors, x, y, y0, eps, np.int(n/size), 1e5/size) # Posterior calculation
             
             post = comm.gather(post_, root) # Gathering data from all cores to master core
             t = time.time() - t
@@ -267,7 +272,8 @@ for i in range(len(locations)):
                 log.write("\n#####################################################################\n\n")
                 log.write("Number of Iterations: %i\n" % (n))
                 log.write("Number of Posteriors: %i\n" % (repeat))
-                log.write("Number of Days of Days: %i\n" % (len(x)))
+                log.write("RMSD Weights: %s\n" % (weights_str))
+                log.write("Training window size: %i\n" % (len(x)))
                 log.write("\n#####################################################################\n\n")
                 log.write("Posterior No. 1\n")
                 log.write("Execution Time: %.3f s\n" % (t))
@@ -287,7 +293,7 @@ for i in range(len(locations)):
                     plt.title("Parameter %s posterior distribution" % (model.params[k]), fontsize=26)
                     plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
                     plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
-                    plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                 
                 # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
@@ -368,62 +374,62 @@ for i in range(len(locations)):
                     plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
                     plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    plt.vlines(x[-1], 0, np.max(y_dat_val), linestyles="dashed")
+                    plt.vlines(x[-1], 0, np.max(y_dat_val), color="black", linestyles="dashed")
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                     
                     plt.figure(figsize=(15, 10))
                     plt.scatter(x_dat_val, y_dat_val[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
                     plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    plt.vlines(x[-1], np.min(y_dat_val[0]), np.max(y_dat_val[0]), linestyles="dashed")
+                    plt.vlines(x[-1], np.min(y_dat_val[0]), np.max(y_dat_val[0]), color="black", linestyles="dashed")
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_confirmed_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_confirmed_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                     
                     plt.figure(figsize=(15, 10))
                     plt.scatter(x_dat_val, y_dat_val[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
                     plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    plt.vlines(x[-1], np.min(y_dat_val[1]), np.max(y_dat_val[1]), linestyles="dashed")
+                    plt.vlines(x[-1], np.min(y_dat_val[1]), np.max(y_dat_val[1]), color="black", linestyles="dashed")
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
 
                     plt.figure(figsize=(15, 10))
-                    plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                    plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                    plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                    plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                    plt.vlines(x_total[len(x)-1], 0, np.max(y_total), linestyles="dashed")
+                    plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                    plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                    plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                    plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                    plt.vlines(x_to_end[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                     
                     plt.figure(figsize=(15, 10))
-                    plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                    plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                    plt.vlines(x_total[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), linestyles="dashed")
+                    plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                    plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                    plt.vlines(x_to_end[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                     
                     plt.figure(figsize=(15, 10))
-                    plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                    plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                    plt.vlines(x_total[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), linestyles="dashed")
+                    plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                    plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                    plt.vlines(x_to_end[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
                     plt.title("%s: %s Fit" % (locations[i], model.name))
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                     
                 else:
@@ -436,7 +442,7 @@ for i in range(len(locations)):
                     plt.title("%s: %s Fit" % (locations[i], model.name))
                     plt.xlabel("Days", fontsize=26)
                     plt.legend()
-                    plt.savefig(filepath+r"/%s_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                    plt.savefig(filepath+r"/%s_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     plt.close()
                 
                 np.savetxt(filepath+r"/post.txt", post)
@@ -467,8 +473,7 @@ for i in range(len(locations)):
                 eps = max(np.max(post[:,-1])*0.75, np.min(post[:,-1])*1.25)
                 
                 t = time.time()
-                weights = np.array([1,1])
-                post_ = smcABC(model.infected_dead, weights, hist, bins, n_bins, p_std, x, y, y0, eps, np.int(n/size), 1e6/size)
+                post_ = smcABC(model.infected_dead, weights, hist, bins, n_bins, p_std, x, y, y0, eps, np.int(n/size), 1e5/size)
                 
                 post = comm.gather(post_, root)
                 t = time.time() - t
@@ -509,7 +514,7 @@ for i in range(len(locations)):
                         plt.title("Parameter %s posterior distribution" % (model.params[k]), fontsize=26)
                         plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
                         plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
-                        plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                     
                     # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
@@ -590,30 +595,30 @@ for i in range(len(locations)):
                         plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
                         plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
-                        plt.vlines(x[-1], 0, np.max(y_dat_val), linestyles="dashed")
+                        plt.vlines(x[-1], 0, np.max(y_dat_val), color="black", linestyles="dashed")
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                         
                         plt.figure(figsize=(15, 10))
                         plt.scatter(x_dat_val, y_dat_val[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
                         plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
-                        plt.vlines(x[-1], np.min(y_dat_val[0]), np.max(y_dat_val[0]), linestyles="dashed")
+                        plt.vlines(x[-1], np.min(y_dat_val[0]), np.max(y_dat_val[0]), color="black", linestyles="dashed")
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_confirmed_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_confirmed_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                         
                         plt.figure(figsize=(15, 10))
                         plt.scatter(x_dat_val, y_dat_val[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
                         plt.plot(x_dat_val, model.infected_dead(x_dat_val, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
-                        plt.vlines(x[-1], np.min(y_dat_val[1]), np.max(y_dat_val[1]), linestyles="dashed")
+                        plt.vlines(x[-1], np.min(y_dat_val[1]), np.max(y_dat_val[1]), color="black", linestyles="dashed")
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
     
                         plt.figure(figsize=(15, 10))
@@ -621,31 +626,31 @@ for i in range(len(locations)):
                         plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
                         plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
                         plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                        plt.vlines(x_total[len(x)-1], 0, np.max(y_total), linestyles="dashed")
+                        plt.vlines(x_total[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                         
                         plt.figure(figsize=(15, 10))
                         plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
                         plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                        plt.vlines(x_total[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), linestyles="dashed")
+                        plt.vlines(x_total[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                         
                         plt.figure(figsize=(15, 10))
                         plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
                         plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                        plt.vlines(x_total[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), linestyles="dashed")
+                        plt.vlines(x_total[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
                         plt.title("%s: %s Fit" % (locations[i], model.name))
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                         
                     else:
@@ -658,7 +663,7 @@ for i in range(len(locations)):
                         plt.title("%s: %s Fit" % (locations[i], model.name))
                         plt.xlabel("Days", fontsize=26)
                         plt.legend()
-                        plt.savefig(filepath+r"/%s_fit.png" % (model.name), format="png", dpi=300, bbox_to_inches=None)
+                        plt.savefig(filepath+r"/%s_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                         plt.close()
                     
                     np.savetxt(filepath+r"/post.txt", post)
