@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Feb  8 17:15:07 2021
+Created on Tue Aug 25 19:43:23 2020
 
-@author: joao-valeriano
+@author: joaop
 """
 
 # Import libraries
@@ -49,7 +49,7 @@ def rk4(f, y0, t, args, h=1.):
 
 ##########################################################################
 
-class SIR(object):
+class SIR:
     """
     SIR epidemic model
     """
@@ -58,13 +58,18 @@ class SIR(object):
         
         self.dat = dat
     
-    # SIRD parameters
     name = "SIR"
     ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
+    prior_func = ["uniform",
+                  "uniform",
+                  "uniform"]
+    prior_args = [(0., 1.),
+                  (0., 1.),
+                  (0., 1.)]
     
     # Differential equations model
     @staticmethod
@@ -74,30 +79,53 @@ class SIR(object):
         S, I, R = y
         beta, N, gamma = params
         
-        return np.array([-beta*I*S/N,
-                         beta*I*S/N-gamma*I,
-                         gamma*I])
+        return [-beta*I*S/N,
+                beta*I*S/N-gamma*I,
+                gamma*I]
     
     # SIRD equations solution
-    @classmethod
-    def solution(cls, t, params, y0):
+    @staticmethod
+    @njit(fastmath=True)
+    def solution(t, params, y0):
     
-        y0[0] = params[1] - (y0[1] + y0[2])
+        def model(t, y, params):
+            
+            S, I, R = y
+            beta, N, gamma = params
+            
+            return np.array([-beta*I*S/N,
+                             beta*I*S/N-gamma*I,
+                             gamma*I])    
         
-        sol = rk4(cls.model, y0, t, params)
+        y0_ = np.copy(y0)
+        
+        y0_[0] = params[1] - (y0[1] + y0[2])
+        
+        sol = rk4(model, y0_, t, params)
 
-        return sol
+        return sol.T
     
     # SIRD model total infected and dead output
-    @classmethod
-    def infected_dead(cls, t, params, y0):
+    @staticmethod
+    @njit(fastmath=True)
+    def infected_dead(t, params, y0):
+        
+        def model(t, y, params):
+            
+            S, I, R = y
+            beta, N, gamma = params
+            
+            return np.array([-beta*I*S/N,
+                             beta*I*S/N-gamma*I,
+                             gamma*I])
         
         y0[0] = params[1] - (y0[1] + y0[2])
         
-        sol = rk4(cls.model, y0, t, params)
+        sol = rk4(model, y0, t, params)
         
-        I_tot = np.sum(sol[:,1:], axis = 1)
+        I_tot = np.sum(sol[:,1:], axis=1)
         D = sol[:,2]
+        
         return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
     
     # Save posterior
@@ -175,85 +203,8 @@ class SIRD:
     def set_best_params(cls, best_params):
         
         cls.best_params = best_params
-    
+        
 class SEIRD:
-    """
-    SEIRD epidemic model
-    """
-    
-    def __init__(self, dat):
-        
-        self.dat = dat
-    
-    # SEIRD parameters
-    name = "SEIRD"
-    plot_name = "SEIRD"
-    ncomp = len(name)
-    params = [r"$\beta$", r"$N$", r"$P_{IFR}$", r"$t_{d}$", r"$t_{r}$", r"$t_{c}$", r"$\kappa$"]
-    nparams = len(params)
-    post = np.empty(0)
-    best_params = np.empty(0)
-    priors = [[np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 1]]
-    
-    # Differential equations model
-    @staticmethod
-    @njit(fastmath=True)
-    def model(t, y, params):
-        
-        S, E, R, I, D = y
-        beta, N, p_ifr, t_d, t_r, t_c, Pex = params
-        gamma = (1-p_ifr)/t_r
-        mu = p_ifr/t_d
-        
-        c = 1/t_c
-        
-        return np.array([-beta*(1-Pex)*I*S/N - beta*Pex*E*S/N,
-                         beta*(1-Pex)*I*S/N + beta*Pex*E*S/N - c*E,
-                         gamma*I,
-                         c*E-gamma*I-mu*I,
-                         mu*I])
-    
-    # SEIRD equations solution
-    @classmethod
-    def solution(cls, t, params, y0):
-    
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4])
-        
-        sol = rk4(cls.model, y0, t, params)
-        
-        return sol
-    
-    # SEIRD model total infected and dead output
-    @classmethod
-    def infected_dead(cls, t, params, y0):
-        
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4])
-        
-        sol = rk4(cls.model, y0, t, params)
-        
-        I_tot = np.sum(sol[:,2:], axis = 1)
-        D = sol[:,4]
-        return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
-    
-    # Save posterior
-    @classmethod
-    def set_post(cls, post):
-        
-        cls.post = post
-    
-    # Save best parameters
-    @classmethod
-    def set_best_params(cls, best_params):
-        
-        cls.best_params = best_params
-        
-class SEIRD3:
     """
     SEIRD epidemic model
     """
@@ -270,13 +221,20 @@ class SEIRD3:
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
-    priors = [[np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30]]
+    prior_func = ["uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform"]
+    prior_args = [(0., 1.),
+                  (0., 1.),
+                  (0., 1.),
+                  (0., 1.),
+                  (0., 30.),
+                  (0., 30.),
+                  (0., 30.),]
     
     # Differential equations model
     @staticmethod
@@ -297,22 +255,58 @@ class SEIRD3:
                          mu*I])
     
     # SEIRD equations solution
-    @classmethod
-    def solution(cls, t, params, y0):
-    
-        y0[0] = params[2] - (y0[1] + y0[2] + y0[3] + y0[4])
+    @staticmethod
+    @njit(fastmath=True)
+    def solution(t, params, y0):
         
-        sol = rk4(cls.model, y0, t, params)
+        def model(t, y, params):
+        
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
         
         return sol
     
     # SEIRD model total infected and dead output
-    @classmethod
-    def infected_dead(cls, t, params, y0):
+    @staticmethod
+    @njit(fastmath=True)
+    def infected_dead(t, params, y0):
         
-        y0[0] = params[2] - (y0[1] + y0[2] + y0[3] + y0[4])
+        def model(t, y, params):
         
-        sol = rk4(cls.model, y0, t, params)
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
         
         I_tot = np.sum(sol[:,2:], axis = 1)
         D = sol[:,4]
@@ -329,7 +323,7 @@ class SEIRD3:
     def set_best_params(cls, best_params):
         
         cls.best_params = best_params
-
+        
 class SEIRD2:
     """
     SEIRD epidemic model
@@ -343,16 +337,29 @@ class SEIRD2:
     name = "SEIRD"
     plot_name = "SEIRD"
     ncomp = len(name)
-    params = [r"$\beta$", r"$N$", r"$t_{d}$", r"$t_{r}$", r"$t_{c}$", r"$\kappa$"]
+    params = [r"$\beta_{I}$", r"$\beta_{E}$", r"$N$", r"$P_{IFR}$", r"$t_{d}$", 
+              r"$t_{r}$", r"$t_{c}$", r"RF_{0}", r"$E_{0}$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
-    priors = [[np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 1],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 30],
-              [np.random.uniform, 0, 1]]
+    prior_func = ["uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform",
+                  "uniform"]
+    prior_args = [(0., 1.),
+                  (0., 1.),
+                  (0., 1.),
+                  (0., 1.),
+                  (0., 30.),
+                  (0., 30.),
+                  (0., 30.),
+                  (0., 1.),
+                  (0., 2.)]
     
     # Differential equations model
     @staticmethod
@@ -360,35 +367,83 @@ class SEIRD2:
     def model(t, y, params):
         
         S, E, R, I, D = y
-        beta, N, t_d, t_r, t_c, Pex = params
-        gamma = 1/t_r
-        mu = 1/t_d
+        beta_I, beta_E, N, p_ifr, t_d, t_r, t_c = params
+        gamma = (1-p_ifr)/t_r
+        mu = p_ifr/t_d
         
         c = 1/t_c
         
-        return np.array([-beta*(1-Pex)*I*S/N - beta*Pex*E*S/N,
-                         beta*(1-Pex)*I*S/N + beta*Pex*E*S/N - c*E,
+        return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                         beta_I*I*S/N + beta_E*E*S/N - c*E,
                          gamma*I,
                          c*E-gamma*I-mu*I,
                          mu*I])
     
     # SEIRD equations solution
-    @classmethod
-    def solution(cls, t, params, y0):
-    
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4])
+    @staticmethod
+    @njit(fastmath=True)
+    def solution(t, params, y0):
         
-        sol = rk4(cls.model, y0, t, params)
+        def model(t, y, params):
+        
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        RF0, E0 = params[-2:]
+        
+        y0_[1] = E0*y0_[-2]
+        I0 = y0_[-2]
+        y0_[-3] = I0*RF0
+        y0_[-2] = I0*(1-RF0)        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
         
         return sol
     
     # SEIRD model total infected and dead output
-    @classmethod
-    def infected_dead(cls, t, params, y0):
+    @staticmethod
+    @njit(fastmath=True)
+    def infected_dead(t, params, y0):
         
-        y0[0] = params[1] - (y0[1] + y0[2] + y0[3] + y0[4])
+        def model(t, y, params):
         
-        sol = rk4(cls.model, y0, t, params)
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        RF0, E0 = params[-2:]
+        
+        y0_[1] = E0*y0_[-2]
+        I0 = y0_[-2]
+        y0_[-3] = I0*RF0
+        y0_[-2] = I0*(1-RF0)        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
         
         I_tot = np.sum(sol[:,2:], axis = 1)
         D = sol[:,4]

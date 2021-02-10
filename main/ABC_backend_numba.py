@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 import numba
-from numba import njit
+from numba import njit, jit
 import warnings
 
 # Deactivate numba deprecation warnings
@@ -33,9 +33,31 @@ def sort(n, hist, bins):
 
 ##########################################################################
 
+@njit 
+def dist(d, args):
+    
+    if (d == "uniform"):
+        
+        return np.random.uniform(*args)
+    
+    if (dist == "lognormal"):
+        
+        return np.random.lognormal(*args)
+
+@njit
+def distance(x, y, weights):
+    
+    s = 0
+    
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            
+            s += (x[i,j]-y[i,j])**2*weights[i]
+            
+    return np.sqrt(s/np.sum(weights)/x.shape[0]/x.shape[1])
+
 # Rejection ABC
-# @njit(fastmath=True)
-def rejABC(model, weights, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max):
+def rejABC(model, weights, prior_func, prior_args, dat_t, dat_y, y0, eps, n_sample, n_max):
     # model: function to be fit; 
     # prior_params: list of ranges for uniform priors;
     # dat_t: data time;
@@ -44,25 +66,26 @@ def rejABC(model, weights, prior_params, dat_t, dat_y, y0, eps, n_sample, n_max)
     # eps: tolerance;
     # n_sample: number of samples to be sorted
     
-    n_mp = len(prior_params) # Number of model parameters to be fit
+    n_mp = len(prior_func) # Number of model parameters to be fit
     
     p = np.zeros(n_mp+1, dtype=np.float64) # Array of parameters
     
     post = np.zeros((1,n_mp+1)) # Array to build posterior distribution
-    post[0,-1] = eps
+    
+    samples = np.zeros((n_sample, n_mp), dtype=np.float64)
+    for i in range(n_mp):
+        samples[:,i] = dist(prior_func[i], prior_args[i]+(n_sample,))
     
     for i in range(n_sample):
         
         # Sort parameters according to given priors
-        for j in range(n_mp):
+        p[:-1] = samples[i]
         
-            p[j] = prior_params[j][0](prior_params[j][1], prior_params[j][2])
-        
-        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2*weights.reshape((-1,1)))/np.prod(dat_y.shape)/np.sum(weights))
+        d = distance(dat_y, model(dat_t, p[:-1], y0), weights)
         p[-1] = d # Model-data distance
         
         # Check parameters and add sample to posterior distribution
-        if (d < eps):
+        if (d < eps and not np.isnan(d)):
         
             post = np.concatenate((post, p.reshape((1,n_mp+1)))).reshape(len(post)+1, n_mp+1)
         
@@ -88,15 +111,16 @@ def smcABC(model, weights, hist, bins, n_bins, p_std, dat_t, dat_y, y0, eps, n_s
     
     post = np.zeros((1,n_mp+1)) # Array to build posterior distribution
     
+    samples = np.zeros((n_sample, n_mp), dtype=np.float64)
+    for i in range(n_mp):
+        samples[:,i] = sort(n_sample, hist[i], bins[i]) + np.random.normal(scale=p_std[i]/n_bins, size=n_sample)
+    
     for i in range(n_sample):
         
         # Sort parameters according to given priors
-        for j in range(n_mp):
+        p[:-1] = samples[i]
         
-            # p[j] = np.random.uniform(prior_params[j,0], prior_params[j,1])
-            p[j] = sort(1, hist[j], bins[j]) + np.random.normal(scale=p_std[j]/n_bins)
-        
-        d = np.sqrt(np.sum((dat_y-model(dat_t, p[:-1], y0))**2*weights.reshape((-1,1))))/len(dat_t)/np.sum(weights)
+        d = distance(dat_y, model(dat_t, p[:-1], y0), weights)
         p[-1] = d # Model-data distance
         
         # Check parameters and add sample to posterior distribution
