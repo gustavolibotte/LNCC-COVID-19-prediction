@@ -35,12 +35,16 @@ size = comm.size # Number of used cores
 
 # Rejection ABC parameters
 n = 1000000 # Number of samples
-repeat = 3 # Number of posteriors to be calculated
+n_max = 100000
+repeat = 5 # Number of posteriors to be calculated
+n_bins = 20
 # eps = 10000000 # Tolerance
 day_step = 5
 day_set_size = 30
 val_set_size = 10
 day_start = 0
+post_perc_reduction = 100
+post_perc_tol_reduction = 50
 
 #######################################################################################
 # Uncomment to run an example of loading data (do not forget to uncomment the import) #
@@ -243,18 +247,16 @@ for i in range(len(locations)):
             y0[-2] = data.loc[int(days_sets[days_idx][0]-days_sets[0][0]),["confirmed"]]-y0[-1]
             
             # Ranges for initial uniform parameter priors (beta, N, gamma)
-            priors = model.prior_args
             for k in range(model.nparams):
                 
                 if (model.params[k] == r"$N$"):
                     
-                    priors[k] = (int(pop_state[locations[i]]/100), int(pop_state[locations[i]]/5))
                     model.prior_args[k] = (int(pop_state[locations[i]]/100), int(pop_state[locations[i]]/5))
             
             # First run for numba pre compilation
-            eps = np.max(y)/20
+            eps = np.max(y)
             weights = np.array([1,1])
-            rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, 10, 1e5/size)
+            rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, 10, n_max/size)
             
             ##########################################################################
             
@@ -262,9 +264,9 @@ for i in range(len(locations)):
             
             # First posterior calculation
             t = time.time()
-            weights_str = "[1, np.sum(y0[-3:])/max(1,y0[-1])]"
+            weights_str = "[1,1]"#"np.sum(y0[-3:])/max(1,y0[-1])]"
             weights = np.array(eval(weights_str))
-            post_ = rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, np.int(n/size), 1e5/size) # Posterior calculation
+            post_ = rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, np.int(n/size), n_max/size) # Posterior calculation
             
             post = comm.gather(post_, root) # Gathering data from all cores to master core
             t = time.time() - t
@@ -325,9 +327,10 @@ for i in range(len(locations)):
                     
                 log.write("\nPosterior distribution on file posterior_'param'.png\n")
                 
-                L = np.sqrt(np.sum((y-model.infected_dead(x, p, y0))**2))/len(x)
-                L_val = np.sqrt(np.sum((y_dat_val-model.infected_dead(x_dat_val, p, y0))[:,-val_set_size:]**2))/val_set_size
-                L_total = np.sqrt(np.sum((y_total-model.infected_dead(x_total, p, y0_total))**2))/len(x_total)
+                L = distance(y, model.infected_dead(x, p, y0), np.ones(2))
+                L_weight = distance(y, model.infected_dead(x, p, y0), weights)
+                L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
+                L_total = distance(y_total, model.infected_dead(x_total, p, y0_total), np.ones(2))
                 aic = AIC(model.nparams, L)
                 aic_val = AIC(model.nparams, L_val)
                 aic_total = AIC(model.nparams, L_total)
@@ -352,6 +355,11 @@ for i in range(len(locations)):
                     rmsd_win = L
                     rmsd_winner = j
                     
+                if (L_weight < rmsd_win):
+                    
+                    rmsd_win = L_weight
+                    rmsd_winner = j
+                    
                 if (L_val < rmsd_win_val):
                     
                     rmsd_win_val = L_val
@@ -364,6 +372,7 @@ for i in range(len(locations)):
                 
                 log_geral.write("Posterior 1:")
                 log_geral.write("\n\tRMSD: %f" % (L))
+                log_geral.write("\n\tWeighted RMSD: %f" % (L_weight))
                 log_geral.write("\n\tRMSD for validation data: %f" % (L_val))
                 log_geral.write("\n\tRMSD for total data: %f" % (L_total))
                 log_geral.write("\n\tAIC: %f" % (AIC(model.nparams, L)))
@@ -371,6 +380,7 @@ for i in range(len(locations)):
                 log_geral.write("\n\tAIC for total data: %f\n\n" % (AIC(model.nparams, L_total)))
                 
                 log.write("\nRMSD: %f" % (L))
+                log.write("\nWeighted RMSD: %f" % (L_weight))
                 log.write("\nRMSD for validation data: %f" % (L_val))
                 log.write("\nRMSD for total data: %f" % (L_total))
                 log.write("\nAIC: %f" % (AIC(model.nparams, L)))
@@ -463,14 +473,12 @@ for i in range(len(locations)):
                 np.savetxt(filepath+r"/post.txt", post)
                 
                 post = post[np.argsort(post[:,-1])]
-                post = post[:len(post)//2]
+                post = post[np.where(post[:,-1] <= np.percentile(post[:,-1], post_perc_reduction))]
                 
             post = comm.bcast(post, root) # Share posterior analysis results with other cores
             
             ##########################################################################
-            
-            n_bins = 20
-            
+
             # Same procedure for the calculation of following posteriors
             for l in range(1, repeat):
                 
@@ -482,7 +490,7 @@ for i in range(len(locations)):
                 hist = np.zeros((len(p), n_bins))
                 bins = np.zeros((len(p), n_bins+1))
                 
-                eps = post[-1,-1]
+                eps = np.percentile(post[:,-1], post_perc_tol_reduction)
                 
                 # Define new priors
                 for k in range(len(hist)):
@@ -490,7 +498,7 @@ for i in range(len(locations)):
                     hist[k], bins[k] = np.histogram(post[:len(post)//2+1, k], n_bins, density=True)
                 
                 t = time.time()
-                post_ = smcABC(model.infected_dead, weights, hist, bins, n_bins, p_std, x, y, y0, eps, np.int(n/size), 1e5/size)
+                post_ = smcABC(model.infected_dead, weights, hist, bins, n_bins, p_std, x, y, y0, eps, np.int(n/size), n_max/size)
                 
                 post = comm.gather(post_, root)
                 t = time.time() - t
@@ -548,9 +556,10 @@ for i in range(len(locations)):
                         
                     log.write("\nPosterior distribution on file posterior_'param'.png\n")
                     
-                    L = np.sqrt(np.sum((y-model.infected_dead(x, p, y0))**2))/len(x)
-                    L_val = np.sqrt(np.sum((y_dat_val-model.infected_dead(x_dat_val, p, y0))[:,-val_set_size:]**2))/val_set_size
-                    L_total = np.sqrt(np.sum((y_total-model.infected_dead(x_total, p, y0_total))**2))/len(x_total)
+                    L = distance(y, model.infected_dead(x, p, y0), np.ones(2))
+                    L_weight = distance(y, model.infected_dead(x, p, y0), weights)
+                    L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
+                    L_total = distance(y_total, model.infected_dead(x_total, p, y0_total), np.ones(2))
                     aic = AIC(model.nparams, L)
                     aic_val = AIC(model.nparams, L_val)
                     aic_total = AIC(model.nparams, L_total)
@@ -575,6 +584,11 @@ for i in range(len(locations)):
                         rmsd_win = L
                         rmsd_winner = j
                         
+                    if (L_weight < rmsd_win):
+                        
+                        rmsd_win = L_weight
+                        rmsd_winner = j
+                        
                     if (L_val < rmsd_win_val):
                         
                         rmsd_win_val = L_val
@@ -587,6 +601,7 @@ for i in range(len(locations)):
                     
                     log_geral.write("Posterior 1:")
                     log_geral.write("\n\tRMSD: %f" % (L))
+                    log_geral.write("\n\tWeighted RMSD: %f" % (L_weight))
                     log_geral.write("\n\tRMSD for validation data: %f" % (L_val))
                     log_geral.write("\n\tRMSD for total data: %f" % (L_total))
                     log_geral.write("\n\tAIC: %f" % (AIC(model.nparams, L)))
@@ -594,6 +609,7 @@ for i in range(len(locations)):
                     log_geral.write("\n\tAIC for total data: %f\n\n" % (AIC(model.nparams, L_total)))
                     
                     log.write("\nRMSD: %f" % (L))
+                    log.write("\nWeighted RMSD: %f" % (L_weight))
                     log.write("\nRMSD for validation data: %f" % (L_val))
                     log.write("\nRMSD for total data: %f" % (L_total))
                     log.write("\nAIC: %f" % (AIC(model.nparams, L)))
@@ -686,7 +702,7 @@ for i in range(len(locations)):
                     np.savetxt(filepath+r"/post.txt", post)
                     
                     post = post[np.argsort(post[:,-1])]
-                    post = post[:len(post)//2]
+                    post = post[np.where(post[:,-1] <= np.percentile(post[:,-1], post_perc_reduction))]
                     
                 post = comm.bcast(post, root) # Share full posterior with other cores
                 
