@@ -59,17 +59,21 @@ class SIR:
         self.dat = dat
     
     name = "SIR"
+    plot_name = "SIR"
     ncomp = len(name)
     params = [r"$\beta$", r"$N$", r"$\gamma$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
-    prior_func = ["uniform",
-                  "uniform",
-                  "uniform"]
-    prior_args = [(0., 1.),
-                  (0., 1.),
-                  (0., 1.)]
+    prior_func = np.array(["uniform",
+                           "uniform",
+                           "uniform"])
+    prior_args = np.array([(0., 1.),
+                           (0., 1.),
+                           (0., 1.)])
+    prior_bounds = np.array([(0., 1.),
+                             (0., 1.),
+                             (0., 1.)])
     
     # Differential equations model
     @staticmethod
@@ -79,9 +83,9 @@ class SIR:
         S, I, R = y
         beta, N, gamma = params
         
-        return [-beta*I*S/N,
-                beta*I*S/N-gamma*I,
-                gamma*I]
+        return np.array([-beta*I*S,
+                beta*I*S-gamma*I,
+                gamma*I])
     
     # SIRD equations solution
     @staticmethod
@@ -118,11 +122,12 @@ class SIR:
             return np.array([-beta*I*S/N,
                              beta*I*S/N-gamma*I,
                              gamma*I])
+        y0_ = np.copy(y0)
         
-        y0[0] = params[1] - (y0[1] + y0[2])
+        y0_[0] = params[1] - (y0[1] + y0[2])
         
-        sol = rk4(model, y0, t, params)
-        
+        sol = rk4(model, y0_, t, params)
+        # print(y0_, params)
         I_tot = np.sum(sol[:,1:], axis=1)
         D = sol[:,2]
         
@@ -342,24 +347,33 @@ class SEIRD2:
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
-    prior_func = ["uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform",
-                  "uniform"]
-    prior_args = [(0., 1.),
-                  (0., 1.),
-                  (0., 1.),
-                  (0., 1.),
-                  (0., 30.),
-                  (0., 30.),
-                  (0., 30.),
-                  (0., 1.),
-                  (0., 2.)]
+    prior_func = np.array(["uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform"])
+    prior_args = np.array([(0., 1.),
+                           (0., 1.),
+                           (0., 1.),
+                           (0., 1.),
+                           (0., 30.),
+                           (0., 30.),
+                           (0., 30.),
+                           (0., 1.),
+                           (0., 2.)])
+    prior_bounds = np.array([(0., 1.),
+                             (0., 1.),
+                             (0., 1.),
+                             (0., 1.),
+                             (0., 30.),
+                             (0., 30.),
+                             (0., 30.),
+                             (0., 1.),
+                             (0., 2.)])
     
     # Differential equations model
     @staticmethod
