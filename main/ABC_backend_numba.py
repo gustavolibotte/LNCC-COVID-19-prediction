@@ -133,8 +133,8 @@ def rejABC(model, weights, prior_func, prior_args, dat_t, dat_y, y0, eps, n_samp
         p[-1] = d # Model-data distance
         post[i] = p
         
-        # print("\rSorting Rejection ABC samples... %i/%i" % (i+1, n_sample), end="")
-    # print("")
+        print("\rSorting Rejection ABC samples... %i/%i" % (i+1, n_sample), end="")
+    print("")
     
     return post, trials
 
@@ -181,8 +181,8 @@ def gen_samples(model, weights, prior_func, prior_args, dat_t, dat_y, y0, n_samp
 
         post[i] = p #.reshape(len(post)+1, n_mp+1)
         
-        # print("\rGenerating samples... %i/%i" % (i+1, n_sample), end="")
-    # print("")
+        print("\rGenerating samples... %i/%i" % (i+1, n_sample), end="")
+    print("")
     
     return post
 
@@ -237,8 +237,8 @@ def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, da
         p[-1] = d # Model-data distance
         post[i] = p
         
-        # print("\rGenerating samples... %i/%i" % (i+1, n_sample), end="")
-    # print("")
+        print("\rGenerating samples... %i/%i" % (i+1, n_sample), end="")
+    print("")
     
     return post
 
@@ -297,7 +297,7 @@ def smc_weights(p, p_std, prior, prior_func, prior_args, prior_weights):
     
     return  n / s
 
-def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_bounds, dat_t, dat_y, y0, eps, n_max=None, fixed_params=None):
+def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_bounds, dat_t, dat_y, y0, eps, n_max=None, fixed_params=None, noise_scale=1.):
     # model: function to be fit; 
     # p_std: standard deviations of last posterior, to add noise to new posterior
     # dat_t: data time;
@@ -351,7 +351,7 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
             trials += 1
             
             # Sort parameters according to given priors
-            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights), nf_par_idx] + np.random.normal(scale=p_std)
+            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights), nf_par_idx] + np.random.normal(scale=p_std/noise_scale)
             # print(p)
             if not check_box(lower_bounds, upper_bounds, p[nf_par_idx]):
                 # print("out")
@@ -365,8 +365,8 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
         post = np.concatenate((post, p.reshape((1,n_mp+1)))).reshape(len(post)+1, n_mp+1)
         post_weights[i] = smc_weights(p[nf_par_idx], p_std, prior[:,nf_par_idx], prior_func[nf_par_idx], prior_args[nf_par_idx], prior_weights)
         
-        # print("\rSorting ABC-SMC samples... %i/%i"%(i+1, n_sample), end="")
-    # print("")
+        print("\rSorting ABC-SMC samples... %i/%i"%(i+1, n_sample), end="")
+    print("")
     
     return post[1:], np.array(post_weights), trials
 

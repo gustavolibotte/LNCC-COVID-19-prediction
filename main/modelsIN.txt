@@ -1,1 +1,1 @@
-SEIRD2
+SIR
