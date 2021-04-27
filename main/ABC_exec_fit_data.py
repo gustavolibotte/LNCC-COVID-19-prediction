@@ -14,6 +14,7 @@ from mpi4py import MPI # module for MPI parallelization
 import time # time module for counting execution time
 import datetime # date and time for logs
 import os
+import sys
 
 from ABC_backend_numba import *
     # sort: function to sort random numbers according to a given numerical histogram
@@ -35,16 +36,21 @@ size = comm.size # Number of used cores
 
 # Rejection ABC parameters
 n = 100 # Number of samples
-n_max = 100
-repeat = 5 # Number of posteriors to be calculated
+n_max = 1000
+repeat = 10 # Number of posteriors to be calculated
+noise_scale = 10.
+past_window_post = repeat
+past_run_last_window_post = repeat
+max_trials = 1000
 n_bins = 20
 # eps = 10000000 # Tolerance
 #data_length = 200
 #t = np.linspace(1, data_length, data_length)
 day_step = 5
-day_set_size = 40
+day_set_size = 30
 val_set_size = 10
 day_start = 0
+past_run_filepath = ""
 post_perc_reduction = 100
 post_perc_tol_reduction = 50
 use_last_post = True
@@ -264,7 +270,7 @@ for i in range(len(locations)):
             weights = np.ones(2)
             # rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, 10, n_max/size)
             
-            if (days_folders.index(filepath.split("/")[-1]) == 0 or use_last_post == False):
+            if ((days_folders.index(filepath.split("/")[-1]) == 0 and past_run_filepath == "") or use_last_post == False):
             
                 samples_ = gen_samples(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, n_max//size)
                 
@@ -306,14 +312,20 @@ for i in range(len(locations)):
             else:
                 
                 days_folder = days_folders.index(filepath.split("/")[-1])
-                past_post_file = "Posterior%i".join(filepath.split("Posterior1")) % repeat
-                past_post_file = "/".join(past_post_file.split("/")[:-1])+"/"+days_folders[days_folder-1]
+                
+                if past_run_filepath == "" or days_folder != 0:
+                    past_post_file = f"Posterior{past_window_post}".join(filepath.split("Posterior1"))
+                    past_post_file = "/".join(past_post_file.split("/")[:-1])+"/"+days_folders[days_folder-1]
+                else:
+                    past_post_file = past_run_filepath+f"Posterior{past_run_last_window_post}"+filepath.split("Posterior1")[-1]
+                    past_post_file = "/".join(past_post_file.split("/")[:-1])+"/"+str(int(filepath.split("/")[-1][:-5])-day_step)+"_days"
+                    
                 past_post = np.genfromtxt(past_post_file+"/post.txt")
                 past_post_weights = np.genfromtxt(past_post_file+"/post_weights.txt")
                 
                 p_std = np.std(past_post[:,:-1], axis=0)
                 
-                samples_ = gen_samples_from_dist(model.infected_dead, weights, past_post, past_post_weights, model.prior_bounds, x, y, y0, n_max//size)
+                samples_ = gen_samples_from_dist(model.infected_dead, weights, past_post, past_post_weights, model.prior_bounds, x, y, y0, n_max//size, None, 10.)
                 
                 samples = comm.gather(samples_, root)
 
@@ -341,7 +353,7 @@ for i in range(len(locations)):
                 weights_str = "[1,1]"#"np.sum(y0[-3:])/max(1,y0[-1])]"
                 weights = np.array(eval(weights_str), dtype=np.float64)
                 post_, post_weights_, trials_ = smcABC(model.infected_dead, weights, past_post, past_post_weights, model.prior_func, 
-                                                       model.prior_args, model.prior_bounds, x, y, y0, eps, len(past_post)//size)
+                                                       model.prior_args, model.prior_bounds, x, y, y0, eps, len(past_post)//size, None, noise_scale, 1e6)
                 
                 post = comm.gather(post_, root) # Gathering data from all cores to master core
                 post_weights = comm.gather(post_weights_, root)
@@ -350,6 +362,40 @@ for i in range(len(locations)):
                 t_tot += t # Add posterior calculation time to total execution time
             
             ##########################################################################
+            
+            # max_trials_reached = False
+            # for sub_post in post:
+            #     if len(sub_post) == 1:
+            #         max_trials_reached = True
+                    
+            # if rank  == root:
+            #     if max_trials_reached:
+            #         log = open(filepath+"/%s_log.out" % (model.name), "w")
+            #         log.write(datetime_now + "\n\n")
+            #         log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+            #         log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+            #         log.write("Rejection ABC fitting of epidemic curves\n\n")
+            #         log.write("Model: %s\n" % (model.name))
+            #         log.write("Parameters: " + ", ".join(model.params))
+            #         log.write("\n#####################################################################\n\n")
+            #         log.write("Number of Samples: %i\n" % (len(post)))
+            #         log.write("Number of Posteriors: %i\n" % (repeat))
+            #         log.write("RMSD Weights: %s\n" % (weights_str))
+            #         log.write("Training window size: %i\n" % (len(x)))
+            #         log.write("Validation window size: %i\n" % (len(x_val)))
+            #         log.write("\n#####################################################################\n\n")
+            #         log.write("Posterior No. 1\n")
+            #         log.write("Execution Time: %.3f s\n" % (t))
+            #         log.write("Tolerance: eps = %.2f\n" % (eps))
+                    
+            #         log.write(f"\nReached maximum number of trials per sample: {max_trials}")
+            #         log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                    
+            #         log.close()
+            #         log_geral.close()
+            
+            # if max_trials_reached:
+            #     past_window_post = int(filepath.split("/")[3][9:])-1
             
             # First posterior analysis running on master core
             if (rank == root):
@@ -417,12 +463,12 @@ for i in range(len(locations)):
                 log.write("\nPosterior distribution on file posterior_'param'.png\n")
                 
                 L = distance(y, model.infected_dead(x, p, y0), np.ones(2))
-                np.savetxt(filepath+"/fit_error.txt", y-model.infected_dead(x, p, y0))
+                np.savetxt(filepath+"/fit_error.txt", (y-model.infected_dead(x, p, y0)).T)
                 
                 L_weight = distance(y, model.infected_dead(x, p, y0), weights)
                 
                 L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
-                np.savetxt(filepath+"/val_error.txt", y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:])
+                np.savetxt(filepath+"/val_error.txt", (y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:]).T)
                 
                 L_total = distance(y_total, model.infected_dead(x_total, p, y0_total), np.ones(2))
                 aic = AIC(model.nparams, L)
@@ -567,6 +613,7 @@ for i in range(len(locations)):
                 
                 np.savetxt(filepath+r"/post.txt", post)
                 np.savetxt(filepath+r"/post_weights.txt", post_weights)
+                weight_var = 0
             
             else:
                 
@@ -579,9 +626,14 @@ for i in range(len(locations)):
             post_weights = comm.bcast(post_weights, root)
 
             ##########################################################################
-
+            
+            max_trials_reached = False
+            
             # Same procedure for the calculation of following posteriors
             for l in range(1, repeat):
+                
+                if max_trials_reached:
+                    continue
                 
                 filepath =  "../logs/log"+datetime_now+"/Posterior"+str(l+1)+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
 
@@ -592,13 +644,50 @@ for i in range(len(locations)):
                 
                 t = time.time()
                 post_, post_weights_, trials_ = smcABC(model.infected_dead, weights, post, post_weights, model.prior_func, 
-                                                       model.prior_args, model.prior_bounds, x, y, y0, eps, len(post)//size)
+                                                       model.prior_args, model.prior_bounds, x, y, y0, eps, len(post)//size, None, noise_scale, max_trials)
                 
                 post = comm.gather(post_, root)
                 post_weights = comm.gather(post_weights_, root)
                 trials = comm.gather(trials_, root)
                 t = time.time() - t
                 t_tot += t
+                
+                max_trials_reached = False
+                
+                if rank  == root:
+                    for sub_post in post:
+                        if len(sub_post) == 1:
+                            max_trials_reached = True
+                    
+                    if max_trials_reached:
+                        log = open(filepath+"/%s_log.out" % (model.name), "w")
+                        log.write(datetime_now + "\n\n")
+                        log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+                        log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+                        log.write("Rejection ABC fitting of epidemic curves\n\n")
+                        log.write("Model: %s\n" % (model.name))
+                        log.write("Parameters: " + ", ".join(model.params))
+                        log.write("\n#####################################################################\n\n")
+                        log.write("Number of Samples: %i\n" % (len(post)))
+                        log.write("Number of Posteriors: %i\n" % (repeat))
+                        log.write("RMSD Weights: %s\n" % (weights_str))
+                        log.write("Training window size: %i\n" % (len(x)))
+                        log.write("Validation window size: %i\n" % (len(x_val)))
+                        log.write("\n#####################################################################\n\n")
+                        log.write("Posterior No. 1\n")
+                        log.write("Execution Time: %.3f s\n" % (t))
+                        log.write("Tolerance: eps = %.2f\n" % (eps))
+                        
+                        log.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                        log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                        
+                        log.close()
+                
+                max_trials_reached = comm.bcast(max_trials_reached)
+                
+                if max_trials_reached:
+                    past_window_post = int(filepath.split("/")[3][9:])-1
+                    continue
                 
                 # First posterior analysis running on master core
                 if (rank == root):
@@ -658,12 +747,12 @@ for i in range(len(locations)):
                     log.write("\nPosterior distribution on file posterior_'param'.png\n")
                     
                     L = distance(y, model.infected_dead(x, p, y0), np.ones(2))
-                    np.savetxt(filepath+"/fit_error.txt", y-model.infected_dead(x, p, y0))
+                    np.savetxt(filepath+"/fit_error.txt", (y-model.infected_dead(x, p, y0)).T)
                     
                     L_weight = distance(y, model.infected_dead(x, p, y0), weights)
                     
                     L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
-                    np.savetxt(filepath+"/val_error.txt", y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:])
+                    np.savetxt(filepath+"/val_error.txt", (y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:]).T)
                     
                     L_total = distance(y_total, model.infected_dead(x_total, p, y0_total), np.ones(2))
                     aic = AIC(model.nparams, L)

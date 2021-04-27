@@ -501,6 +501,152 @@ class SEIRD:
         
         cls.best_params = best_params
 
+class SEIRD2:
+    """
+    SEIRD epidemic model
+    """
+    
+    def __init__(self, dat):
+        
+        self.dat = dat
+    
+    # SEIRD parameters
+    name = "SEIRD"
+    plot_name = "SEIRD"
+    ncomp = len(name)
+    params = [r"$\beta_{I}$", r"$\beta_{E}$", r"$N$", r"$P_{IFR}$", r"$t_{d}$", 
+              r"$t_{r}$", r"$t_{c}$", r"RF_{0}", r"$E_{0}$"]
+    nparams = len(params)
+    post = np.empty(0)
+    best_params = np.empty(0)
+    prior_func = np.array(["uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform",
+                           "uniform"])
+    prior_args = np.array([(0., 1.),
+                           (0., 1.),
+                           (0., 1.),
+                           (0., 1.),
+                           (0., 30.),
+                           (0., 30.),
+                           (0., 30.),
+                           (0., 1.),
+                           (0., 2.)])
+    prior_bounds = np.array([(0., 1.),
+                             (0., 1.),
+                             (0., 1.),
+                             (0., 1.),
+                             (0., 30.),
+                             (0., 30.),
+                             (0., 30.),
+                             (0., 1.),
+                             (0., 2.)])
+    
+    # Differential equations model
+    @staticmethod
+    @njit(fastmath=True)
+    def model(t, y, params):
+        
+        S, E, R, I, D = y
+        beta_I, beta_E, N, p_ifr, t_d, t_r, t_c = params
+        gamma = (1-p_ifr)/t_r
+        mu = p_ifr/t_d
+        
+        c = 1/t_c
+        
+        return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                         beta_I*I*S/N + beta_E*E*S/N - c*E,
+                         gamma*I,
+                         c*E-gamma*I-mu*I,
+                         mu*I])
+    
+    # SEIRD equations solution
+    @staticmethod
+    @njit(fastmath=True)
+    def solution(t, params, y0):
+        
+        def model(t, y, params):
+        
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        RF0, E0 = params[-2:]
+        
+        y0_[1] = E0*y0_[-2]
+        I0 = y0_[-2]
+        y0_[-3] = I0*RF0
+        y0_[-2] = I0*(1-RF0)        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
+        
+        return sol
+    
+    # SEIRD model total infected and dead output
+    @staticmethod
+    @njit(fastmath=True)
+    def infected_dead(t, params, y0):
+        
+        def model(t, y, params):
+        
+            S, E, R, I, D = y
+            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
+            gamma = (1-p_ifr)/t_r
+            mu = p_ifr/t_d
+            
+            c = 1/t_c
+            
+            return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+                             beta_I*I*S/N + beta_E*E*S/N - c*E,
+                             gamma*I,
+                             c*E-gamma*I-mu*I,
+                             mu*I])
+        
+        y0_ = np.copy(y0)
+        
+        RF0, E0 = params[-2:]
+        
+        y0_[1] = E0*y0_[-2]
+        I0 = y0_[-2]
+        y0_[-3] = I0*RF0
+        y0_[-2] = I0*(1-RF0)        
+        y0_[0] = params[2] - (y0_[1] + y0_[2] + y0_[3] + y0_[4])
+        
+        sol = rk4(model, y0_, t, params)
+        
+        I_tot = np.sum(sol[:,2:], axis = 1)
+        D = sol[:,4]
+        return np.concatenate((I_tot, D)).reshape((2, len(I_tot)))
+    
+    # Save posterior
+    @classmethod
+    def set_post(cls, post):
+        
+        cls.post = post
+    
+    # Save best parameters
+    @classmethod
+    def set_best_params(cls, best_params):
+        
+        cls.best_params = best_params
+
 class SEIRD_bias:
     """
     SEIRD epidemic model

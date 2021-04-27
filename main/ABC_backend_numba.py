@@ -186,7 +186,7 @@ def gen_samples(model, weights, prior_func, prior_args, dat_t, dat_y, y0, n_samp
     
     return post
 
-def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, dat_t, dat_y, y0, n_sample, fixed_params=None):
+def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, dat_t, dat_y, y0, n_sample, fixed_params=None, noise_scale=1.):
     # model: function to be fit; 
     # prior_params: list of ranges for uniform priors;
     # dat_t: data time;
@@ -226,7 +226,7 @@ def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, da
         while (d > 1e300 or np.isnan(d)):
             
             # Sort parameters according to given priors
-            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights),nf_par_idx] + np.random.normal(scale=2*p_std)
+            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights),nf_par_idx] + np.random.normal(scale=p_std/noise_scale)
             
             if not check_box(lower_bounds, upper_bounds, p[nf_par_idx]):
                 # print("out")
@@ -297,7 +297,7 @@ def smc_weights(p, p_std, prior, prior_func, prior_args, prior_weights):
     
     return  n / s
 
-def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_bounds, dat_t, dat_y, y0, eps, n_max=None, fixed_params=None, noise_scale=1.):
+def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_bounds, dat_t, dat_y, y0, eps, n_max=None, fixed_params=None, noise_scale=1., max_trials=1000):
     # model: function to be fit; 
     # p_std: standard deviations of last posterior, to add noise to new posterior
     # dat_t: data time;
@@ -345,10 +345,16 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
     for i in range(n_sample):
         
         d = eps+1
+        sample_trials = 0
         
         while (d > eps or np.isnan(d)):
             
             trials += 1
+            sample_trials += 1
+            
+            if sample_trials >= max_trials:
+                print(f"Reached maximum number of trials per sample: {max_trials}")
+                return post[:1], np.array(post_weights[:1]), sample_trials
             
             # Sort parameters according to given priors
             p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights), nf_par_idx] + np.random.normal(scale=p_std/noise_scale)
