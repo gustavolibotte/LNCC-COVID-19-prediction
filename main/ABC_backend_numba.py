@@ -16,7 +16,7 @@ warnings.simplefilter('ignore', category=numba.NumbaPendingDeprecationWarning)
 
 # Function to sort random number according to a given histogram
 @njit(fastmath=True) # Numba pre-compilation decorator
-def sort(n, hist, bins): 
+def sort(n, hist, bins):
     # n: how many numbers to sort;
     # hist: l-sized array with height of columns of normalized histogram;
     # bins: (l+1)-sized array with values of bins divisions
@@ -77,10 +77,10 @@ def distance(x, y, weights=None):
         for j in range(x.shape[1]):
             
             s[i] += (x[i,j]-y[i,j])**2
-            
-        s[i] = s[i]/x.shape[1]*weights[i]
 
-    return np.sqrt(np.sum(s)/np.sum(weights))
+        s[i] = np.sqrt(s[i]/x.shape[1])/(np.max(x[i])-np.min(x[i])+1.)*weights[i]
+
+    return np.sum(s)/np.sum(weights)
 
 # Rejection ABC
 
@@ -216,6 +216,8 @@ def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, da
     post = np.zeros((n_sample,n_mp+1)) # Array to build posterior distribution
 
     p_std = prior[:,:-1].std(axis=0)[nf_par_idx]
+    # h = 1.06*p_std*len(prior)**(-0.2)
+    h = p_std
     
     lower_bounds, upper_bounds = np.array(prior_bounds)[nf_par_idx].T
     
@@ -226,7 +228,7 @@ def gen_samples_from_dist(model, weights, prior, prior_weights, prior_bounds, da
         while (d > 1e300 or np.isnan(d)):
             
             # Sort parameters according to given priors
-            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights),nf_par_idx] + np.random.normal(scale=p_std/noise_scale)
+            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights),nf_par_idx] + np.random.normal(scale=h/noise_scale)
             
             if not check_box(lower_bounds, upper_bounds, p[nf_par_idx]):
                 # print("out")
@@ -280,11 +282,20 @@ def summ(x):
         
     return s
 
+@njit
+def kde(x, std, y):
+    h = 1.06*std*len(x)**(-0.2)
+    
+    f = 0.
+
+    for j in range(len(x)):
+        f += np.exp(-summ((y-x[j])**2/(2*h**2)))
+    
+    return f/(len(x)*prod(h)*np.sqrt(2*np.pi)**x.shape[1])
+
 @njit(fastmath=True)
-def smc_weights(p, p_std, prior, prior_func, prior_args, prior_weights):
-    
+def smc_weights(p, h, prior, prior_func, prior_args, prior_weights):
     s = 0
-    
     n = 1
     
     for i in range(len(p)):
@@ -293,8 +304,8 @@ def smc_weights(p, p_std, prior, prior_func, prior_args, prior_weights):
     
     for i in range(len(prior)):
         
-        s += prior_weights[i] * np.exp(-summ(((prior[i]-p)/p_std)**2))
-    
+        s += prior_weights[i] * np.exp(-summ(((prior[i]-p)/h)**2/2))
+
     return  n / s
 
 def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_bounds, dat_t, dat_y, y0, eps, n_max=None, fixed_params=None, noise_scale=1., max_trials=1000):
@@ -327,6 +338,8 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
     post = np.zeros((1,n_mp+1)) # Array to build posterior distribution
 
     p_std = prior[:,:-1].std(axis=0)[nf_par_idx]
+    # h = 1.06*p_std*len(prior)**(-0.2)
+    h = p_std
     
     lower_bounds, upper_bounds = np.array(prior_bounds)[nf_par_idx].T
     
@@ -357,7 +370,7 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
                 return post[:1], np.array(post_weights[:1]), sample_trials
             
             # Sort parameters according to given priors
-            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights), nf_par_idx] + np.random.normal(scale=p_std/noise_scale)
+            p[nf_par_idx] = prior[np.random.choice(len(prior), p=prior_weights), nf_par_idx] + np.random.normal(scale=h/noise_scale)
             # print(p)
             if not check_box(lower_bounds, upper_bounds, p[nf_par_idx]):
                 # print("out")
@@ -369,7 +382,7 @@ def smcABC(model, weights, prior, prior_weights, prior_func, prior_args, prior_b
         
         p[-1] = d # Model-data distance
         post = np.concatenate((post, p.reshape((1,n_mp+1)))).reshape(len(post)+1, n_mp+1)
-        post_weights[i] = smc_weights(p[nf_par_idx], p_std, prior[:,nf_par_idx], prior_func[nf_par_idx], prior_args[nf_par_idx], prior_weights)
+        post_weights[i] = smc_weights(p[nf_par_idx], h/noise_scale, prior[:,nf_par_idx], prior_func[nf_par_idx], prior_args[nf_par_idx], prior_weights)
         
         print("\rSorting ABC-SMC samples... %i/%i"%(i+1, n_sample), end="")
     print("")

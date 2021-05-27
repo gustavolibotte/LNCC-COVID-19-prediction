@@ -20,7 +20,7 @@ warnings.simplefilter('ignore', category=numba.NumbaPendingDeprecationWarning)
 
 # 4th order Runge-Kutta integrator
 @njit(fastmath=True)
-def rk4(f, y0, t, args, h=0.01): 
+def rk4(f, y0, t, args, h=0.1): 
     # f: function to be integrated; y0: initial conditions;
     # t: time points for the function to be evaluated;
     # args: extra function parameters;
@@ -413,8 +413,14 @@ class SEIRD:
         
         c = 1/t_c
         
-        return np.array([-beta_I*I*S/N - beta_E*E*S/N,
-                         beta_I*I*S/N + beta_E*E*S/N - c*E,
+        # return np.array([-beta_I*I*S/N - beta_E*E*S/N,
+        #                  beta_I*I*S/N + beta_E*E*S/N - c*E,
+        #                  gamma*I,
+        #                  c*E-gamma*I-mu*I,
+        #                  mu*I])
+        
+        return np.array([-beta_I*I*S - beta_E*E*S,
+                         beta_I*I*S + beta_E*E*S - c*E,
                          gamma*I,
                          c*E-gamma*I-mu*I,
                          mu*I])

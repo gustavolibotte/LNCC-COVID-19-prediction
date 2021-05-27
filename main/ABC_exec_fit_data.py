@@ -37,17 +37,17 @@ size = comm.size # Number of used cores
 # Rejection ABC parameters
 n = 100 # Number of samples
 n_max = 1000
-repeat = 10 # Number of posteriors to be calculated
-noise_scale = 10.
+repeat = 3 # Number of posteriors to be calculated
+noise_scale = 2.
 past_window_post = repeat
 past_run_last_window_post = repeat
-max_trials = 1000
+max_trials = 10000000000000000000000000
 n_bins = 20
 # eps = 10000000 # Tolerance
 #data_length = 200
 #t = np.linspace(1, data_length, data_length)
 day_step = 5
-day_set_size = 30
+day_set_size = 10
 val_set_size = 10
 day_start = 0
 past_run_filepath = ""
@@ -107,14 +107,17 @@ if (os.path.exists("../logs/") == False):
     
     os.mkdir("../logs/")
 
+log_folder = "../logs/log"+"_".join([datetime_now, "fixed", locations[0], models[0], str(repeat), 
+                                     "posts", str(day_set_size), "day-window", "past", str(use_last_post)])
+
 if (rank == root):
     
-    os.mkdir("../logs/log"+datetime_now)
+    os.mkdir(log_folder)
     for i in range(1, repeat+1):
-        os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i))
+        os.mkdir(log_folder+"/Posterior"+str(i))
         
         for j in range(len(locations)):
-            os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i)+"/"+locations[j])
+            os.mkdir(log_folder+"/Posterior"+str(i)+"/"+locations[j])
             
             data = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, locations[j])
     
@@ -122,13 +125,13 @@ if (rank == root):
 
             for k in range(len(models)):
 
-                os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k])
+                os.mkdir(log_folder+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k])
                 
                 for l in range(n_sets):
                     
                     if (l*day_step+day_set_size >= day_start):
                     
-                        os.mkdir("../logs/log"+datetime_now+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k]+"/"+"%i_days"%(l*day_step+day_set_size))
+                        os.mkdir(log_folder+"/Posterior"+str(i)+"/"+locations[j]+"/"+models[k]+"/"+"%i_days"%(l*day_step+day_set_size))
 
     aic_winner = 0
     aic_win = np.finfo(np.float64).max
@@ -143,7 +146,7 @@ if (rank == root):
     rmsd_winner_total = 0
     rmsd_win_total = np.finfo(np.float64).max
     
-    log_geral = open("../logs/log"+datetime_now+"/log_geral"+datetime_now+".txt", "w")
+    log_geral = open(log_folder+"/log_geral"+datetime_now+".txt", "w")
     log_geral.write(datetime_now + "\n\n")
     log_geral.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
     log_geral.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
@@ -167,7 +170,7 @@ else:
 wait_var = comm.gather(wait_var, root)
 n_sets = comm.bcast(n_sets, root)
 
-days_folders = os.listdir("../logs/log"+datetime_now+"/Posterior1/"+locations[0]+"/"+models[0])
+days_folders = os.listdir(log_folder+"/Posterior1/"+locations[0]+"/"+models[0])
 days_folders = [int(folder.split("_")[0]) for folder in days_folders]
 days_folders.sort()
 days_folders = [str(folder)+"_days" for folder in days_folders]
@@ -237,7 +240,9 @@ for i in range(len(locations)):
         
         for days_idx in range(start_idx, len(days_sets)):
             
-            filepath =  "../logs/log"+datetime_now+"/Posterior1"+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
+            print("Posterior 1")
+            
+            filepath =  log_folder+"/Posterior1"+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
         
             # Initial conditions
             x = days_sets[days_idx]
@@ -362,41 +367,7 @@ for i in range(len(locations)):
                 t_tot += t # Add posterior calculation time to total execution time
             
             ##########################################################################
-            
-            # max_trials_reached = False
-            # for sub_post in post:
-            #     if len(sub_post) == 1:
-            #         max_trials_reached = True
-                    
-            # if rank  == root:
-            #     if max_trials_reached:
-            #         log = open(filepath+"/%s_log.out" % (model.name), "w")
-            #         log.write(datetime_now + "\n\n")
-            #         log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-            #         log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
-            #         log.write("Rejection ABC fitting of epidemic curves\n\n")
-            #         log.write("Model: %s\n" % (model.name))
-            #         log.write("Parameters: " + ", ".join(model.params))
-            #         log.write("\n#####################################################################\n\n")
-            #         log.write("Number of Samples: %i\n" % (len(post)))
-            #         log.write("Number of Posteriors: %i\n" % (repeat))
-            #         log.write("RMSD Weights: %s\n" % (weights_str))
-            #         log.write("Training window size: %i\n" % (len(x)))
-            #         log.write("Validation window size: %i\n" % (len(x_val)))
-            #         log.write("\n#####################################################################\n\n")
-            #         log.write("Posterior No. 1\n")
-            #         log.write("Execution Time: %.3f s\n" % (t))
-            #         log.write("Tolerance: eps = %.2f\n" % (eps))
-                    
-            #         log.write(f"\nReached maximum number of trials per sample: {max_trials}")
-            #         log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
-                    
-            #         log.close()
-            #         log_geral.close()
-            
-            # if max_trials_reached:
-            #     past_window_post = int(filepath.split("/")[3][9:])-1
-            
+
             # First posterior analysis running on master core
             if (rank == root):
                 
@@ -632,10 +603,26 @@ for i in range(len(locations)):
             # Same procedure for the calculation of following posteriors
             for l in range(1, repeat):
                 
+                print(f"Posterior {l+1}")
+                
                 if max_trials_reached:
+                    if rank == root:
+                        for posterior in range(l, repeat+1):
+                            past_filepath = filepath.split("/")
+                            past_filepath[3] = past_filepath[3][:9]+str(l-1)
+                            past_filepath = "/".join(past_filepath)
+                            repeat_filepath = filepath.split("/")
+                            repeat_filepath[3] = repeat_filepath[3][:9]+str(posterior)
+                            repeat_filepath = "/".join(repeat_filepath[:-1])
+                            os.system(f"rsync -av --quiet {past_filepath} {repeat_filepath}")
+                        wait_var = 0
+                    else:
+                        wait_var = 0
+                    wait_var = comm.bcast(wait_var, root)
+                    
                     continue
                 
-                filepath =  "../logs/log"+datetime_now+"/Posterior"+str(l+1)+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
+                filepath =  log_folder+"/Posterior"+str(l+1)+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
 
                 p = post[np.where(post[:,-1] == np.min(post[:,-1]))[0][0]][:-1]
                 p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
