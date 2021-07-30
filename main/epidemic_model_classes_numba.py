@@ -507,6 +507,7 @@ class SEIRD:
         
         cls.best_params = best_params
 
+
 class SEIRD2:
     """
     SEIRD epidemic model
@@ -520,13 +521,12 @@ class SEIRD2:
     name = "SEIRD"
     plot_name = "SEIRD"
     ncomp = len(name)
-    params = [r"$\beta_{I}$", r"$\beta_{E}$", r"$N$", r"$P_{IFR}$", r"$t_{d}$", 
-              r"$t_{r}$", r"$t_{c}$", r"RF_{0}", r"$E_{0}$"]
+    params = [r"$\beta_{I}$", r"$\beta_{E}$", r"$N$", r"$\mu$", 
+              r"$\gamma$", r"$t_{c}$", r"RF_{0}", r"$E_{0}$"]
     nparams = len(params)
     post = np.empty(0)
     best_params = np.empty(0)
     prior_func = np.array(["uniform",
-                           "uniform",
                            "uniform",
                            "uniform",
                            "uniform",
@@ -538,8 +538,7 @@ class SEIRD2:
                            (0., 1.),
                            (0., 1.),
                            (0., 1.),
-                           (0., 30.),
-                           (0., 30.),
+                           (0., 1.),
                            (0., 30.),
                            (0., 1.),
                            (0., 2.)])
@@ -547,8 +546,7 @@ class SEIRD2:
                              (0., 1.),
                              (0., 1.),
                              (0., 1.),
-                             (0., 30.),
-                             (0., 30.),
+                             (0., 1.),
                              (0., 30.),
                              (0., 1.),
                              (0., 2.)])
@@ -559,14 +557,12 @@ class SEIRD2:
     def model(t, y, params):
         
         S, E, R, I, D = y
-        beta_I, beta_E, N, p_ifr, t_d, t_r, t_c = params
-        gamma = (1-p_ifr)/t_r
-        mu = p_ifr/t_d
+        beta_I, beta_E, N, mu, gamma, t_c = params
         
         c = 1/t_c
-        
-        return np.array([-beta_I*I*S/N - beta_E*E*S/N,
-                         beta_I*I*S/N + beta_E*E*S/N - c*E,
+
+        return np.array([-beta_I*I*S - beta_E*E*S,
+                         beta_I*I*S + beta_E*E*S - c*E,
                          gamma*I,
                          c*E-gamma*I-mu*I,
                          mu*I])
@@ -579,9 +575,7 @@ class SEIRD2:
         def model(t, y, params):
         
             S, E, R, I, D = y
-            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
-            gamma = (1-p_ifr)/t_r
-            mu = p_ifr/t_d
+            beta_I, beta_E, N, mu, gamma, t_c, RF0, E0 = params
             
             c = 1/t_c
             
@@ -613,9 +607,7 @@ class SEIRD2:
         def model(t, y, params):
         
             S, E, R, I, D = y
-            beta_I, beta_E, N, p_ifr, t_d, t_r, t_c, RF0, E0 = params
-            gamma = (1-p_ifr)/t_r
-            mu = p_ifr/t_d
+            beta_I, beta_E, N, mu, gamma, t_c, RF0, E0 = params
             
             c = 1/t_c
             
