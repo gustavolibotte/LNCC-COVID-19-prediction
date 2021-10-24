@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 17 15:15:09 2021
+Created on Wed Apr 28 18:17:55 2021
 
 @author: joao-valeriano
 """
@@ -21,7 +21,7 @@ from ABC_backend_numba import *
     # rejABC: Rejection ABC implementation
 
 import epidemic_model_classes_numba as epi_mod
-from data_loading import LoadData 
+from data_loading import LoadData
 from proj_consts import ProjectConsts
 
 plt.rcParams.update({'font.size': 22})
@@ -34,20 +34,25 @@ root = 0 # Master core
 rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
+np.random.seed
+
 # Rejection ABC parameters
 n = 1000 # Number of samples
 n_max = 10000
-repeat = 3 # Number of posteriors to be calculated
+repeat = 5 # Number of posteriors to be calculated
 noise_scale = 2.
 past_window_post = repeat
 past_run_last_window_post = repeat
-max_trials = 10000000000000000000000000
+max_trials = 10000000000000000000000000000
 n_bins = 20
 # eps = 10000000 # Tolerance
 #data_length = 200
 #t = np.linspace(1, data_length, data_length)
 day_step = 5
-day_set_size = 10
+day_set_size = 30
+window_size = day_set_size
+min_window_size = 10
+max_window_size = 50
 val_set_size = 10
 day_start = 0
 past_run_filepath = ""
@@ -86,7 +91,7 @@ datetime_now = comm.bcast(datetime_now, root)
 locations = open("brazilIN.txt", "r").read().split("\n")[:-1]
 
 # Models
-models = open("modelsIN.txt", "r").read().split("\n")[:-1]
+models = open("modelsIN2.txt", "r").read().split("\n")[:-1]
 
 # If we don't want to divide the data
 if (day_set_size == 0):
@@ -201,7 +206,6 @@ for i in range(len(locations)):
             log_geral.write("Model: "+model.plot_name+"\n")
             log_geral.write("Priors:\n")
             for m in range(len(model.prior_func)):
-
                 log_geral.write("\t" + model.prior_func[m].capitalize() + ": " + ", ".join([str(arg) for arg in model.prior_args[m]])+"\n")
             log_geral.write("\n")
             wait_var = 0
@@ -226,23 +230,64 @@ for i in range(len(locations)):
         else:
             
             for k in range((len(x_total)-day_set_size-val_set_size)//day_step):
-        
                 days_sets.append(x_total[day_step*k:day_step*k+day_set_size])
         
         for k in range(len(days_sets)):
-            
-            if (days_sets[k][-1] >= day_start+x_total[0]-1):
-                
+            if (days_sets[k][-1] >= day_start+x_total[0]-1):                
                 start_idx = k
                 break
         
+        rmsd_list = np.zeros(len(days_sets))
+        
+        days_sets0 = [i for i in days_sets]
+        
         for days_idx in range(start_idx, len(days_sets)):
             
-            print("Posterior 1")
+            if rank == root:
+                print(f"Window {days_idx}")
+                print("Posterior 1")
             
             filepath =  log_folder+"/Posterior1"+"/"+locations[i]+"/"+models[j]+"/"+"%i_days"%(days_idx*day_step+day_set_size)
         
             # Initial conditions
+            if days_idx >= 2:
+                if rmsd_list[days_idx-1] < rmsd_list[days_idx-2] and window_size < max_window_size:
+                    window_size += day_step
+                    if rank == root:
+                        print(window_size, min_window_size, max_window_size)
+                        print(f"Aumenta janela: {window_size}")
+                elif rmsd_list[days_idx-1] > rmsd_list[days_idx-2] and window_size > min_window_size:
+                    window_size -= day_step
+                    if rank == root:
+                        print(window_size, min_window_size, max_window_size)
+                        print(f"Diminui janela: {window_size}")
+                else:
+                    if rank == root:
+                        print(window_size, min_window_size, max_window_size)
+                        print(f"Feijoada: {window_size}")
+                    
+                days_sets[days_idx] = np.unique(np.concatenate(days_sets0[:days_idx+1]))[-window_size:]
+                
+                if rank == root:
+                    print(f"Passed length: {len(days_sets[days_idx])}")
+                
+            # if past_run_filepath == "" or days_idx >= 2:
+            #     if days_idx >= 2:
+            #         if rmsd_list[days_idx-1] < rmsd_list[days_idx-2] and window_size < max_window_size:
+            #             window_size += day_step
+            #             days_sets[days_idx] = np.unique(np.concatenate(days_sets0[:days_idx+1]))[-window_size:]
+            #             print("Aumenta janela")
+            #         elif rmsd_list[days_idx-1] > rmsd_list[days_idx-2] and window_size > min_window_size:
+            #             window_size -= day_step
+            #             days_sets[days_idx] = np.unique(np.concatenate(days_sets0[:days_idx+1]))[-window_size:]
+            #             print("Diminui janela")
+            #         else:
+            #             print("Feijoada")
+            # else:
+            #     past_post_file = f"Posterior{past_window_post}".join(filepath.split("Posterior1"))
+            #     past_post_file = "/".join(past_post_file.split("/")[:-1])+"/"+days_folders[days_folder-1]
+                
+            
             x = days_sets[days_idx]
             x_to_end = x_total[np.where(x_total == days_sets[days_idx][0])[0][0]:]
             x_val = (days_sets[days_idx]+val_set_size)[-val_set_size:]
@@ -265,8 +310,8 @@ for i in range(len(locations)):
                 
                 if (model.params[k] == r"$N$"):
                     
-                    model.prior_args[k] = (country_pop/100, country_pop/2)
-                    model.prior_bounds[k] = (country_pop/100, country_pop/2)
+                    model.prior_args[k] = (country_pop/1000, country_pop/5)
+                    model.prior_bounds[k] = (country_pop/1000, country_pop/5)
                     
             # First run for numba pre compilation
             # eps = 0.05#np.max(y)
@@ -365,7 +410,41 @@ for i in range(len(locations)):
                 t_tot += t # Add posterior calculation time to total execution time
             
             ##########################################################################
-
+            
+            # max_trials_reached = False
+            # for sub_post in post:
+            #     if len(sub_post) == 1:
+            #         max_trials_reached = True
+                    
+            # if rank  == root:
+            #     if max_trials_reached:
+            #         log = open(filepath+"/%s_log.out" % (model.name), "w")
+            #         log.write(datetime_now + "\n\n")
+            #         log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+            #         log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+            #         log.write("Rejection ABC fitting of epidemic curves\n\n")
+            #         log.write("Model: %s\n" % (model.name))
+            #         log.write("Parameters: " + ", ".join(model.params))
+            #         log.write("\n#####################################################################\n\n")
+            #         log.write("Number of Samples: %i\n" % (len(post)))
+            #         log.write("Number of Posteriors: %i\n" % (repeat))
+            #         log.write("RMSD Weights: %s\n" % (weights_str))
+            #         log.write("Training window size: %i\n" % (len(x)))
+            #         log.write("Validation window size: %i\n" % (len(x_val)))
+            #         log.write("\n#####################################################################\n\n")
+            #         log.write("Posterior No. 1\n")
+            #         log.write("Execution Time: %.3f s\n" % (t))
+            #         log.write("Tolerance: eps = %.2f\n" % (eps))
+                    
+            #         log.write(f"\nReached maximum number of trials per sample: {max_trials}")
+            #         log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                    
+            #         log.close()
+            #         log_geral.close()
+            
+            # if max_trials_reached:
+            #     past_window_post = int(filepath.split("/")[3][9:])-1
+            
             # First posterior analysis running on master core
             if (rank == root):
                 
@@ -387,7 +466,7 @@ for i in range(len(locations)):
                 log.write("\n#####################################################################\n\n")
                 log.write("Posterior No. 1\n")
                 log.write("Execution Time: %.3f s\n" % (t))
-                log.write("Tolerance: eps = %.2f\n" % (eps))
+                log.write("Tolerance: eps = %f\n" % (eps))
                 log.write("\nPriors' Ranges:\n\n")
                 for k in range(len(model.prior_args)):
                     log.write("\t %s" % (model.params[k]) + ": %f <-> %f\n" % tuple(model.prior_args[k]))
@@ -435,6 +514,9 @@ for i in range(len(locations)):
                 np.savetxt(filepath+"/fit_error.txt", (y-model.infected_dead(x, p, y0)).T)
                 
                 L_weight = distance(y, model.infected_dead(x, p, y0), weights)
+                rmsd_list[days_idx] = L_weight
+                print(f"Posterior 1: RMSD: {L_weight}")
+                np.savetxt(filepath+"/rmsd_list.txt", rmsd_list)
                 
                 L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
                 np.savetxt(filepath+"/val_error.txt", (y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:]).T)
@@ -535,37 +617,37 @@ for i in range(len(locations)):
                 #     plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                 #     plt.close()
 
-                #     plt.figure(figsize=(15, 10))
-                #     plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                #     plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                #     plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                #     plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                #     plt.vlines(x_to_end[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
-                #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                #     plt.xlabel("Days", fontsize=26)
-                #     plt.legend()
-                #     plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                #     plt.close()
+                    # plt.figure(figsize=(15, 10))
+                    # plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                    # plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                    # plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                    # plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                    # plt.vlines(x_to_end[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
+                    # plt.title("%s: %s Fit" % (locations[i], model.name))
+                    # plt.xlabel("Days", fontsize=26)
+                    # plt.legend()
+                    # plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                    # plt.close()
                     
-                #     plt.figure(figsize=(15, 10))
-                #     plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                #     plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                #     plt.vlines(x_to_end[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
-                #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                #     plt.xlabel("Days", fontsize=26)
-                #     plt.legend()
-                #     plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                #     plt.close()
+                    # plt.figure(figsize=(15, 10))
+                    # plt.scatter(x_to_end, y_to_end[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                    # plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                    # plt.vlines(x_to_end[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
+                    # plt.title("%s: %s Fit" % (locations[i], model.name))
+                    # plt.xlabel("Days", fontsize=26)
+                    # plt.legend()
+                    # plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                    # plt.close()
                     
-                #     plt.figure(figsize=(15, 10))
-                #     plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                #     plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                #     plt.vlines(x_to_end[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
-                #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                #     plt.xlabel("Days", fontsize=26)
-                #     plt.legend()
-                #     plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                #     plt.close()
+                    # plt.figure(figsize=(15, 10))
+                    # plt.scatter(x_to_end, y_to_end[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                    # plt.plot(x_to_end, model.infected_dead(x_to_end, p, y0)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                    # plt.vlines(x_to_end[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
+                    # plt.title("%s: %s Fit" % (locations[i], model.name))
+                    # plt.xlabel("Days", fontsize=26)
+                    # plt.legend()
+                    # plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                    # plt.close()
                     
                 # else:
                     
@@ -600,19 +682,19 @@ for i in range(len(locations)):
             
             # Same procedure for the calculation of following posteriors
             for l in range(1, repeat):
-                
-                print(f"Posterior {l+1}")
+                if rank == root:
+                    print(f"Posterior {l+1}")
                 
                 if max_trials_reached:
                     if rank == root:
+                        past_filepath = filepath.split("/")
+                        past_filepath[3] = past_filepath[3][:9]+str(l-1)
+                        past_filepath = "/".join(past_filepath)
                         for posterior in range(l, repeat+1):
-                            past_filepath = filepath.split("/")
-                            past_filepath[3] = past_filepath[3][:9]+str(l-1)
-                            past_filepath = "/".join(past_filepath)
                             repeat_filepath = filepath.split("/")
                             repeat_filepath[3] = repeat_filepath[3][:9]+str(posterior)
-                            repeat_filepath = "/".join(repeat_filepath[:-1])
-                            os.system(f"rsync -av --quiet {past_filepath} {repeat_filepath}")
+                            repeat_filepath = "/".join(repeat_filepath)
+                            os.system(f"rsync -av --quiet {past_filepath}/* {repeat_filepath}")
                         wait_var = 0
                     else:
                         wait_var = 0
@@ -644,29 +726,29 @@ for i in range(len(locations)):
                         if len(sub_post) == 1:
                             max_trials_reached = True
                     
-                    if max_trials_reached:
-                        log = open(filepath+"/%s_log.out" % (model.name), "w")
-                        log.write(datetime_now + "\n\n")
-                        log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                        log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
-                        log.write("Rejection ABC fitting of epidemic curves\n\n")
-                        log.write("Model: %s\n" % (model.name))
-                        log.write("Parameters: " + ", ".join(model.params))
-                        log.write("\n#####################################################################\n\n")
-                        log.write("Number of Samples: %i\n" % (len(post)))
-                        log.write("Number of Posteriors: %i\n" % (repeat))
-                        log.write("RMSD Weights: %s\n" % (weights_str))
-                        log.write("Training window size: %i\n" % (len(x)))
-                        log.write("Validation window size: %i\n" % (len(x_val)))
-                        log.write("\n#####################################################################\n\n")
-                        log.write("Posterior No. 1\n")
-                        log.write("Execution Time: %.3f s\n" % (t))
-                        log.write("Tolerance: eps = %.2f\n" % (eps))
+                    # if max_trials_reached:
+                    #     log = open(filepath+"/%s_log.out" % (model.name), "w")
+                    #     log.write(datetime_now + "\n\n")
+                    #     log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
+                    #     log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
+                    #     log.write("Rejection ABC fitting of epidemic curves\n\n")
+                    #     log.write("Model: %s\n" % (model.name))
+                    #     log.write("Parameters: " + ", ".join(model.params))
+                    #     log.write("\n#####################################################################\n\n")
+                    #     log.write("Number of Samples: %i\n" % (len(post)))
+                    #     log.write("Number of Posteriors: %i\n" % (repeat))
+                    #     log.write("RMSD Weights: %s\n" % (weights_str))
+                    #     log.write("Training window size: %i\n" % (len(x)))
+                    #     log.write("Validation window size: %i\n" % (len(x_val)))
+                    #     log.write("\n#####################################################################\n\n")
+                    #     log.write("Posterior No. 1\n")
+                    #     log.write("Execution Time: %.3f s\n" % (t))
+                    #     log.write("Tolerance: eps = %.2f\n" % (eps))
                         
-                        log.write(f"\nReached maximum number of trials per sample: {max_trials}")
-                        log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                    #     log.write(f"\nReached maximum number of trials per sample: {max_trials}")
+                    #     log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
                         
-                        log.close()
+                    #     log.close()
                 
                 max_trials_reached = comm.bcast(max_trials_reached)
                 
@@ -735,6 +817,9 @@ for i in range(len(locations)):
                     np.savetxt(filepath+"/fit_error.txt", (y-model.infected_dead(x, p, y0)).T)
                     
                     L_weight = distance(y, model.infected_dead(x, p, y0), weights)
+                    rmsd_list[days_idx] = L_weight
+                    print(f"Posterior {l+1}: RMSD: {L_weight}")
+                    np.savetxt(filepath+"/rmsd_list.txt", rmsd_list)
                     
                     L_val = distance(y_dat_val[:,-val_set_size:], model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:], np.ones(2))
                     np.savetxt(filepath+"/val_error.txt", (y_dat_val[:,-val_set_size:]-model.infected_dead(x_dat_val, p, y0)[:,-val_set_size:]).T)
@@ -835,37 +920,37 @@ for i in range(len(locations)):
                     #     plt.savefig(filepath+r"/%s_dead_val_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     #     plt.close()
     
-                    #     plt.figure(figsize=(15, 10))
-                    #     plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                    #     plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                    #     plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                    #     plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                    #     plt.vlines(x_total[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
-                    #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    #     plt.xlabel("Days", fontsize=26)
-                    #     plt.legend()
-                    #     plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                    #     plt.close()
+                        # plt.figure(figsize=(15, 10))
+                        # plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                        # plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                        # plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                        # plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                        # plt.vlines(x_total[len(x)-1], 0, np.max(y_total), color="black", linestyles="dashed")
+                        # plt.title("%s: %s Fit" % (locations[i], model.name))
+                        # plt.xlabel("Days", fontsize=26)
+                        # plt.legend()
+                        # plt.savefig(filepath+r"/%s_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                        # plt.close()
                         
-                    #     plt.figure(figsize=(15, 10))
-                    #     plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
-                    #     plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
-                    #     plt.vlines(x_total[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
-                    #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    #     plt.xlabel("Days", fontsize=26)
-                    #     plt.legend()
-                    #     plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                    #     plt.close()
+                        # plt.figure(figsize=(15, 10))
+                        # plt.scatter(x_total, y_total[0], facecolors="none", edgecolors="red",  label="Fit Cumulative Infected Data")
+                        # plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[0], lw=3, color="red", label="Cumulative Infected Fit")
+                        # plt.vlines(x_total[len(x)-1], np.min(y_total[0]), np.max(y_total[0]), color="black", linestyles="dashed")
+                        # plt.title("%s: %s Fit" % (locations[i], model.name))
+                        # plt.xlabel("Days", fontsize=26)
+                        # plt.legend()
+                        # plt.savefig(filepath+r"/%s_confirmed_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                        # plt.close()
                         
-                    #     plt.figure(figsize=(15, 10))
-                    #     plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
-                    #     plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
-                    #     plt.vlines(x_total[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
-                    #     plt.title("%s: %s Fit" % (locations[i], model.name))
-                    #     plt.xlabel("Days", fontsize=26)
-                    #     plt.legend()
-                    #     plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
-                    #     plt.close()
+                        # plt.figure(figsize=(15, 10))
+                        # plt.scatter(x_total, y_total[1], facecolors="none", edgecolors="green", label="Fit Cumulative Dead Data")
+                        # plt.plot(x_total, model.infected_dead(x_total, p, y0_total)[1], lw=3, color="green", label="Cumulative Dead Fit")
+                        # plt.vlines(x_total[len(x)-1], np.min(y_total[1]), np.max(y_total[1]), color="black", linestyles="dashed")
+                        # plt.title("%s: %s Fit" % (locations[i], model.name))
+                        # plt.xlabel("Days", fontsize=26)
+                        # plt.legend()
+                        # plt.savefig(filepath+r"/%s_dead_total_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
+                        # plt.close()
                         
                     # else:
                         
@@ -882,9 +967,15 @@ for i in range(len(locations)):
                     
                     np.savetxt(filepath+r"/post.txt", post)
                     np.savetxt(filepath+r"/post_weights.txt", post_weights)
+                
+                else:
+                    wait_var == 0
+                    
+                wait_var = comm.bcast(wait_var, root)
                     
                 post = comm.bcast(post, root) # Share full posterior with other cores
                 post_weights = comm.bcast(post_weights, root)
+                rmsd_list = comm.bcast(rmsd_list, root)
                 
         if (rank == root):
             

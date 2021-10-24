@@ -35,8 +35,8 @@ rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
 # Rejection ABC parameters
-n = 100 # Number of samples
-n_max = 1000
+n = 1000 # Number of samples
+n_max = 10000
 repeat = 3 # Number of posteriors to be calculated
 noise_scale = 2.
 past_window_post = repeat
@@ -99,7 +99,7 @@ if (os.path.exists("../logs/") == False):
     
     os.mkdir("../logs/")
 
-log_folder = "../logs/log"+"_".join([datetime_now, "fixed", locations[0], models[0], str(repeat), 
+log_folder = "../logs/log"+"_".join([datetime_now, "fixed", locations[0], str(n), "samples", models[0], str(repeat), 
                                      "posts", str(day_set_size), "day-window", "past", str(use_last_post)])
 
 if (rank == root):
