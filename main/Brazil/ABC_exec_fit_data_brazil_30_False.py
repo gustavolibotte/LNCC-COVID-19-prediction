@@ -15,14 +15,13 @@ import time # time module for counting execution time
 import datetime # date and time for logs
 import os
 import sys
+sys.path.append("../")
 
 from ABC_backend_numba import *
     # sort: function to sort random numbers according to a given numerical histogram
     # rejABC: Rejection ABC implementation
 
 import epidemic_model_classes_numba as epi_mod
-from data_loading import LoadData 
-from proj_consts import ProjectConsts
 
 plt.rcParams.update({'font.size': 22})
 
@@ -54,20 +53,6 @@ past_run_filepath = ""
 post_perc_reduction = 100
 post_perc_tol_reduction = 50
 use_last_post = False
-
-#######################################################################################
-# Uncomment to run an example of loading data (do not forget to uncomment the import) #
-# TODO: use this data after inserting the new models                                  #
-#######################################################################################
-# df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
-# print(df_brazil_state_cases)
-# rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
-# print(rj_state_cases)
-# rj_state_cities_cases = LoadData.getBrazilStateCityDataFrame("RJ", True)
-# print(rj_state_cities_cases)
-# petropolis_cities_cases = LoadData.getBrazilCityDataFrame(rj_state_cities_cases, "Petrópolis/RJ")
-# print(petropolis_cities_cases)
-#######################################################################################
 
 country_data = pd.read_csv("../data/owid-covid-data.csv")
 
@@ -140,8 +125,6 @@ if (rank == root):
     
     log_geral = open(log_folder+"/log_geral"+datetime_now+".txt", "w")
     log_geral.write(datetime_now + "\n\n")
-    log_geral.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-    log_geral.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
     log_geral.write("Rejection ABC fitting of epidemic curves\n")
     log_geral.write("\nModels: "+", ".join(models))
     log_geral.write("\nLocations: "+", ".join(locations))
@@ -269,9 +252,7 @@ for i in range(len(locations)):
                     model.prior_bounds[k] = (country_pop/100, country_pop/2)
                     
             # First run for numba pre compilation
-            # eps = 0.05#np.max(y)
             weights = np.ones(2)
-            # rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, 10, n_max/size)
             
             if ((days_folders.index(filepath.split("/")[-1]) == 0 and past_run_filepath == "") or use_last_post == False):
             
@@ -284,7 +265,6 @@ for i in range(len(locations)):
                     samples = np.concatenate(samples)
                     eps = np.percentile(samples[:,-1], 100*n/n_max)
                     wait_var = 0
-                    # print("gen samples OK!")
                 
                 else:
                     
@@ -294,8 +274,6 @@ for i in range(len(locations)):
                 wait_var = comm.gather(wait_var, root)
                 
                 eps = comm.bcast(eps, root)
-                # eps0 = eps
-                # print("eps =", eps)
                 
                 ##########################################################################
                 
@@ -347,7 +325,6 @@ for i in range(len(locations)):
                 wait_var = comm.gather(wait_var, root)
                 
                 eps = comm.bcast(eps, root)
-                # eps0 = eps
                 
                 t_tot = 0 # Counting total execution time 
                 
@@ -373,8 +350,6 @@ for i in range(len(locations)):
                 
                 #Info
                 log.write(datetime_now + "\n\n")
-                log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
                 log.write("Rejection ABC fitting of epidemic curves\n\n")
                 log.write("Model: %s\n" % (model.name))
                 log.write("Parameters: " + ", ".join(model.params))
@@ -417,7 +392,6 @@ for i in range(len(locations)):
                 #     plt.savefig(filepath+r"/posterior_%s.png" % (model.params[k].replace("$","").replace("\\","")), format="png", dpi=300, bbox_inches=None)
                 #     plt.close()
                 
-                # p = np.average(post[:,:-1], axis=0, weights=1/post[:,-1]) # Parameter as average of posterior weighted by model-data distance
                 p = post[np.where(post[:,-1] == np.min(post[:,-1]))[0][0]][:-1]
                 p_std = np.std(post[:,:-1], axis=0) # Parameter error as standard deviation of posterior
                 
@@ -501,6 +475,8 @@ for i in range(len(locations)):
                 log.write("\nFit on file model_fit.png")
                 log.close()
                 
+                # Plotting
+
                 # if (len(x) < len(x_total)):
 
                 #     plt.figure(figsize=(15, 10))
@@ -647,8 +623,6 @@ for i in range(len(locations)):
                     if max_trials_reached:
                         log = open(filepath+"/%s_log.out" % (model.name), "w")
                         log.write(datetime_now + "\n\n")
-                        log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                        log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
                         log.write("Rejection ABC fitting of epidemic curves\n\n")
                         log.write("Model: %s\n" % (model.name))
                         log.write("Parameters: " + ", ".join(model.params))
@@ -686,8 +660,6 @@ for i in range(len(locations)):
 
                     #Info
                     log.write(datetime_now + "\n\n")
-                    log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                    log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
                     log.write("Rejection ABC fitting of epidemic curves\n\n")
                     log.write("Model: %s\n" % (model.name))
                     log.write("Parameters: " + ", ".join(model.params))
@@ -801,6 +773,8 @@ for i in range(len(locations)):
                     log.write("\nFit on file model_fit.png")
                     log.close()
                     
+                    # Plotting
+
                     # if (len(x) < len(x_total)):
 
                     #     plt.figure(figsize=(15, 10))

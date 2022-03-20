@@ -15,14 +15,13 @@ import time # time module for counting execution time
 import datetime # date and time for logs
 import os
 import sys
+sys.path.append("../")
 
 from ABC_backend_numba import *
     # sort: function to sort random numbers according to a given numerical histogram
     # rejABC: Rejection ABC implementation
 
 import epidemic_model_classes_numba as epi_mod
-from data_loading import LoadData
-from proj_consts import ProjectConsts
 
 plt.rcParams.update({'font.size': 22})
 
@@ -34,8 +33,6 @@ root = 0 # Master core
 rank = comm.rank # Number of actual core
 size = comm.size # Number of used cores
 
-np.random.seed
-
 # Rejection ABC parameters
 n = 100000 # Number of samples
 n_max = 1000000
@@ -46,9 +43,6 @@ past_window_post = repeat
 past_run_last_window_post = repeat
 max_trials = 10000000000000000000000000000
 n_bins = 20
-# eps = 10000000 # Tolerance
-#data_length = 200
-#t = np.linspace(1, data_length, data_length)
 day_step = 5
 day_set_size = 30
 window_size = day_set_size
@@ -60,20 +54,6 @@ past_run_filepath = ""
 post_perc_reduction = 100
 post_perc_tol_reduction = 50
 use_last_post = False
-
-#######################################################################################
-# Uncomment to run an example of loading data (do not forget to uncomment the import) #
-# TODO: use this data after inserting the new models                                  #
-#######################################################################################
-# df_brazil_state_cases = LoadData.getBrazilDataFrame(5, True)
-# print(df_brazil_state_cases)
-# rj_state_cases = LoadData.getBrazilStateDataFrame(df_brazil_state_cases, "RJ")
-# print(rj_state_cases)
-# rj_state_cities_cases = LoadData.getBrazilStateCityDataFrame("RJ", True)
-# print(rj_state_cities_cases)
-# petropolis_cities_cases = LoadData.getBrazilCityDataFrame(rj_state_cities_cases, "Petrópolis/RJ")
-# print(petropolis_cities_cases)
-#######################################################################################
 
 country_data = pd.read_csv("../data/owid-covid-data.csv")
 
@@ -146,8 +126,6 @@ if (rank == root):
     
     log_geral = open(log_folder+"/log_geral"+datetime_now+".txt", "w")
     log_geral.write(datetime_now + "\n\n")
-    log_geral.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-    log_geral.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
     log_geral.write("Rejection ABC fitting of epidemic curves\n")
     log_geral.write("\nModels: "+", ".join(models))
     log_geral.write("\nLocations: "+", ".join(locations))
@@ -271,23 +249,6 @@ for i in range(len(locations)):
                 
                 if rank == root:
                     print(f"Passed length: {len(days_sets[days_idx])}")
-                
-            # if past_run_filepath == "" or days_idx >= 2:
-            #     if days_idx >= 2:
-            #         if rmsd_list[days_idx-1] < rmsd_list[days_idx-2] and window_size < max_window_size:
-            #             window_size += day_step
-            #             days_sets[days_idx] = np.unique(np.concatenate(days_sets0[:days_idx+1]))[-window_size:]
-            #             print("Aumenta janela")
-            #         elif rmsd_list[days_idx-1] > rmsd_list[days_idx-2] and window_size > min_window_size:
-            #             window_size -= day_step
-            #             days_sets[days_idx] = np.unique(np.concatenate(days_sets0[:days_idx+1]))[-window_size:]
-            #             print("Diminui janela")
-            #         else:
-            #             print("Feijoada")
-            # else:
-            #     past_post_file = f"Posterior{past_window_post}".join(filepath.split("Posterior1"))
-            #     past_post_file = "/".join(past_post_file.split("/")[:-1])+"/"+days_folders[days_folder-1]
-                
             
             x = days_sets[days_idx]
             x_to_end = x_total[np.where(x_total == days_sets[days_idx][0])[0][0]:]
@@ -315,9 +276,7 @@ for i in range(len(locations)):
                     model.prior_bounds[k] = (country_pop/1000, country_pop/5)
                     
             # First run for numba pre compilation
-            # eps = 0.05#np.max(y)
             weights = np.ones(2)
-            # rejABC(model.infected_dead, weights, model.prior_func, model.prior_args, x, y, y0, eps, 10, n_max/size)
             
             if ((days_folders.index(filepath.split("/")[-1]) == 0 and past_run_filepath == "") or use_last_post == False):
             
@@ -330,7 +289,6 @@ for i in range(len(locations)):
                     samples = np.concatenate(samples)
                     eps = np.percentile(samples[:,-1], 100*n/n_max)
                     wait_var = 0
-                    # print("gen samples OK!")
                 
                 else:
                     
@@ -340,9 +298,7 @@ for i in range(len(locations)):
                 wait_var = comm.gather(wait_var, root)
                 
                 eps = comm.bcast(eps, root)
-                # eps0 = eps
-                # print("eps =", eps)
-                
+
                 ##########################################################################
                 
                 t_tot = 0 # Counting total execution time 
@@ -383,7 +339,6 @@ for i in range(len(locations)):
                     samples = np.concatenate(samples)
                     eps = np.percentile(samples[:,-1], 100*n/n_max)
                     wait_var = 0
-                    # print("gen samples OK!")
                 
                 else:
                     
@@ -393,7 +348,6 @@ for i in range(len(locations)):
                 wait_var = comm.gather(wait_var, root)
                 
                 eps = comm.bcast(eps, root)
-                # eps0 = eps
                 
                 t_tot = 0 # Counting total execution time 
                 
@@ -412,40 +366,6 @@ for i in range(len(locations)):
             
             ##########################################################################
             
-            # max_trials_reached = False
-            # for sub_post in post:
-            #     if len(sub_post) == 1:
-            #         max_trials_reached = True
-                    
-            # if rank  == root:
-            #     if max_trials_reached:
-            #         log = open(filepath+"/%s_log.out" % (model.name), "w")
-            #         log.write(datetime_now + "\n\n")
-            #         log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-            #         log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
-            #         log.write("Rejection ABC fitting of epidemic curves\n\n")
-            #         log.write("Model: %s\n" % (model.name))
-            #         log.write("Parameters: " + ", ".join(model.params))
-            #         log.write("\n#####################################################################\n\n")
-            #         log.write("Number of Samples: %i\n" % (len(post)))
-            #         log.write("Number of Posteriors: %i\n" % (repeat))
-            #         log.write("RMSD Weights: %s\n" % (weights_str))
-            #         log.write("Training window size: %i\n" % (len(x)))
-            #         log.write("Validation window size: %i\n" % (len(x_val)))
-            #         log.write("\n#####################################################################\n\n")
-            #         log.write("Posterior No. 1\n")
-            #         log.write("Execution Time: %.3f s\n" % (t))
-            #         log.write("Tolerance: eps = %.2f\n" % (eps))
-                    
-            #         log.write(f"\nReached maximum number of trials per sample: {max_trials}")
-            #         log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
-                    
-            #         log.close()
-            #         log_geral.close()
-            
-            # if max_trials_reached:
-            #     past_window_post = int(filepath.split("/")[3][9:])-1
-            
             # First posterior analysis running on master core
             if (rank == root):
                 
@@ -453,8 +373,6 @@ for i in range(len(locations)):
                 
                 #Info
                 log.write(datetime_now + "\n\n")
-                log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
                 log.write("Rejection ABC fitting of epidemic curves\n\n")
                 log.write("Model: %s\n" % (model.name))
                 log.write("Parameters: " + ", ".join(model.params))
@@ -584,6 +502,8 @@ for i in range(len(locations)):
                 log.write("\nFit on file model_fit.png")
                 log.close()
                 
+                # Plotting:
+
                 # if (len(x) < len(x_total)):
 
                 #     plt.figure(figsize=(15, 10))
@@ -726,30 +646,6 @@ for i in range(len(locations)):
                     for sub_post in post:
                         if len(sub_post) == 1:
                             max_trials_reached = True
-                    
-                    # if max_trials_reached:
-                    #     log = open(filepath+"/%s_log.out" % (model.name), "w")
-                    #     log.write(datetime_now + "\n\n")
-                    #     log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                    #     log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
-                    #     log.write("Rejection ABC fitting of epidemic curves\n\n")
-                    #     log.write("Model: %s\n" % (model.name))
-                    #     log.write("Parameters: " + ", ".join(model.params))
-                    #     log.write("\n#####################################################################\n\n")
-                    #     log.write("Number of Samples: %i\n" % (len(post)))
-                    #     log.write("Number of Posteriors: %i\n" % (repeat))
-                    #     log.write("RMSD Weights: %s\n" % (weights_str))
-                    #     log.write("Training window size: %i\n" % (len(x)))
-                    #     log.write("Validation window size: %i\n" % (len(x_val)))
-                    #     log.write("\n#####################################################################\n\n")
-                    #     log.write("Posterior No. 1\n")
-                    #     log.write("Execution Time: %.3f s\n" % (t))
-                    #     log.write("Tolerance: eps = %.2f\n" % (eps))
-                        
-                    #     log.write(f"\nReached maximum number of trials per sample: {max_trials}")
-                    #     log_geral.write(f"\nReached maximum number of trials per sample: {max_trials}")
-                        
-                    #     log.close()
                 
                 max_trials_reached = comm.bcast(max_trials_reached)
                 
@@ -769,8 +665,6 @@ for i in range(len(locations)):
 
                     #Info
                     log.write(datetime_now + "\n\n")
-                    log.write("Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)\n")
-                    log.write("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv\n\n")
                     log.write("Rejection ABC fitting of epidemic curves\n\n")
                     log.write("Model: %s\n" % (model.name))
                     log.write("Parameters: " + ", ".join(model.params))
@@ -886,6 +780,8 @@ for i in range(len(locations)):
                     log.write("Number of trials: %i\n" % trials)
                     log.write("\nFit on file model_fit.png")
                     log.close()
+
+                    # Plotting:
                     
                     # if (len(x) < len(x_total)):
 

@@ -1,0 +1,2227 @@
+2021-11-14_06-20-09
+
+Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)
+https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv
+
+Rejection ABC fitting of epidemic curves
+
+Models: SEIRD2
+Locations: India
+
+#####################################################################
+
+Number of Samples: 1000
+Number of Posteriors: 3
+Training window size: 30
+Validation window size: 10
+
+############################   RESULTS   ############################
+
+Location: India
+
+#####################################################################
+
+Model: SEIRD
+Priors:
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 30.0
+	Uniform: 0.0, 1.0
+	Uniform: 0.0, 2.0
+
+Posterior 1:
+	RMSD: 0.071427
+	Weighted RMSD: 0.071427
+	RMSD for validation data: 0.313441
+	RMSD for total data: 0.507635
+	AIC: 16.142855
+	AIC for validation data: 16.626883
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.121143
+	Weighted RMSD: 0.121143
+	RMSD for validation data: 0.375810
+	RMSD for total data: 0.507635
+	AIC: 16.242285
+	AIC for validation data: 16.751620
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.077355
+	Weighted RMSD: 0.077355
+	RMSD for validation data: 0.321130
+	RMSD for total data: 0.507635
+	AIC: 16.154709
+	AIC for validation data: 16.642260
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.075172
+	Weighted RMSD: 0.075172
+	RMSD for validation data: 0.443281
+	RMSD for total data: 6.141491
+	AIC: 16.150344
+	AIC for validation data: 16.886561
+	AIC for total data: 28.282982
+
+Posterior 1:
+	RMSD: 0.081040
+	Weighted RMSD: 0.081040
+	RMSD for validation data: 0.527724
+	RMSD for total data: 0.828729
+	AIC: 16.162079
+	AIC for validation data: 17.055449
+	AIC for total data: 17.657459
+
+Posterior 1:
+	RMSD: 0.075301
+	Weighted RMSD: 0.075301
+	RMSD for validation data: 0.440219
+	RMSD for total data: 5.752399
+	AIC: 16.150603
+	AIC for validation data: 16.880439
+	AIC for total data: 27.504797
+
+Posterior 1:
+	RMSD: 0.054331
+	Weighted RMSD: 0.054331
+	RMSD for validation data: 0.439883
+	RMSD for total data: 4.220414
+	AIC: 16.108663
+	AIC for validation data: 16.879767
+	AIC for total data: 24.440828
+
+Posterior 1:
+	RMSD: 0.070803
+	Weighted RMSD: 0.070803
+	RMSD for validation data: 0.251974
+	RMSD for total data: 0.746036
+	AIC: 16.141605
+	AIC for validation data: 16.503948
+	AIC for total data: 17.492073
+
+Posterior 1:
+	RMSD: 0.063290
+	Weighted RMSD: 0.063290
+	RMSD for validation data: 0.266216
+	RMSD for total data: 0.676312
+	AIC: 16.126580
+	AIC for validation data: 16.532431
+	AIC for total data: 17.352623
+
+Posterior 1:
+	RMSD: 0.069207
+	Weighted RMSD: 0.069207
+	RMSD for validation data: 0.163793
+	RMSD for total data: 12.292779
+	AIC: 16.138415
+	AIC for validation data: 16.327587
+	AIC for total data: 40.585559
+
+Posterior 1:
+	RMSD: 0.070822
+	Weighted RMSD: 0.070822
+	RMSD for validation data: 0.176843
+	RMSD for total data: 10.909452
+	AIC: 16.141643
+	AIC for validation data: 16.353686
+	AIC for total data: 37.818904
+
+Posterior 1:
+	RMSD: 0.070152
+	Weighted RMSD: 0.070152
+	RMSD for validation data: 0.161648
+	RMSD for total data: 7.225535
+	AIC: 16.140305
+	AIC for validation data: 16.323296
+	AIC for total data: 30.451070
+
+Posterior 1:
+	RMSD: 0.054039
+	Weighted RMSD: 0.054039
+	RMSD for validation data: 0.106367
+	RMSD for total data: 15.569265
+	AIC: 16.108078
+	AIC for validation data: 16.212734
+	AIC for total data: 47.138530
+
+Posterior 1:
+	RMSD: 0.050956
+	Weighted RMSD: 0.050956
+	RMSD for validation data: 0.271912
+	RMSD for total data: 4.609289
+	AIC: 16.101911
+	AIC for validation data: 16.543825
+	AIC for total data: 25.218579
+
+Posterior 1:
+	RMSD: 0.047939
+	Weighted RMSD: 0.047939
+	RMSD for validation data: 0.166222
+	RMSD for total data: 3.663857
+	AIC: 16.095878
+	AIC for validation data: 16.332443
+	AIC for total data: 23.327713
+
+Posterior 1:
+	RMSD: 0.032134
+	Weighted RMSD: 0.032134
+	RMSD for validation data: 0.211680
+	RMSD for total data: 22.170832
+	AIC: 16.064269
+	AIC for validation data: 16.423360
+	AIC for total data: 60.341664
+
+Posterior 1:
+	RMSD: 0.033957
+	Weighted RMSD: 0.033957
+	RMSD for validation data: 0.184770
+	RMSD for total data: 3.404015
+	AIC: 16.067914
+	AIC for validation data: 16.369540
+	AIC for total data: 22.808030
+
+Posterior 1:
+	RMSD: 0.032133
+	Weighted RMSD: 0.032133
+	RMSD for validation data: 0.194583
+	RMSD for total data: 15.063425
+	AIC: 16.064266
+	AIC for validation data: 16.389167
+	AIC for total data: 46.126849
+
+Posterior 1:
+	RMSD: 0.031535
+	Weighted RMSD: 0.031535
+	RMSD for validation data: 0.081904
+	RMSD for total data: 31.654594
+	AIC: 16.063069
+	AIC for validation data: 16.163808
+	AIC for total data: 79.309188
+
+Posterior 1:
+	RMSD: 0.031652
+	Weighted RMSD: 0.031652
+	RMSD for validation data: 0.098949
+	RMSD for total data: 21.585954
+	AIC: 16.063303
+	AIC for validation data: 16.197897
+	AIC for total data: 59.171909
+
+Posterior 1:
+	RMSD: 0.031527
+	Weighted RMSD: 0.031527
+	RMSD for validation data: 0.089023
+	RMSD for total data: 3.122964
+	AIC: 16.063054
+	AIC for validation data: 16.178046
+	AIC for total data: 22.245928
+
+Posterior 1:
+	RMSD: 0.029399
+	Weighted RMSD: 0.029399
+	RMSD for validation data: 0.276401
+	RMSD for total data: 27.135653
+	AIC: 16.058799
+	AIC for validation data: 16.552802
+	AIC for total data: 70.271307
+
+Posterior 1:
+	RMSD: 0.029275
+	Weighted RMSD: 0.029275
+	RMSD for validation data: 0.263345
+	RMSD for total data: 11.661084
+	AIC: 16.058550
+	AIC for validation data: 16.526690
+	AIC for total data: 39.322169
+
+Posterior 1:
+	RMSD: 0.029300
+	Weighted RMSD: 0.029300
+	RMSD for validation data: 0.271231
+	RMSD for total data: 24.282315
+	AIC: 16.058600
+	AIC for validation data: 16.542462
+	AIC for total data: 64.564629
+
+Posterior 1:
+	RMSD: 0.018300
+	Weighted RMSD: 0.018300
+	RMSD for validation data: 0.951950
+	RMSD for total data: 20.460566
+	AIC: 16.036601
+	AIC for validation data: 17.903900
+	AIC for total data: 56.921133
+
+Posterior 1:
+	RMSD: 0.018955
+	Weighted RMSD: 0.018955
+	RMSD for validation data: 0.994402
+	RMSD for total data: 14.579302
+	AIC: 16.037910
+	AIC for validation data: 17.988804
+	AIC for total data: 45.158603
+
+Posterior 1:
+	RMSD: 0.017977
+	Weighted RMSD: 0.017977
+	RMSD for validation data: 0.878843
+	RMSD for total data: 1.813994
+	AIC: 16.035953
+	AIC for validation data: 17.757686
+	AIC for total data: 19.627989
+
+Posterior 1:
+	RMSD: 0.034314
+	Weighted RMSD: 0.034314
+	RMSD for validation data: 2.194441
+	RMSD for total data: 18.506049
+	AIC: 16.068628
+	AIC for validation data: 20.388882
+	AIC for total data: 53.012097
+
+Posterior 1:
+	RMSD: 0.028305
+	Weighted RMSD: 0.028305
+	RMSD for validation data: 1.843145
+	RMSD for total data: 16.290593
+	AIC: 16.056609
+	AIC for validation data: 19.686290
+	AIC for total data: 48.581185
+
+Posterior 1:
+	RMSD: 0.025369
+	Weighted RMSD: 0.025369
+	RMSD for validation data: 1.717966
+	RMSD for total data: 11.284293
+	AIC: 16.050737
+	AIC for validation data: 19.435931
+	AIC for total data: 38.568587
+
+Posterior 1:
+	RMSD: 0.044783
+	Weighted RMSD: 0.044783
+	RMSD for validation data: 1.377316
+	RMSD for total data: 12.804354
+	AIC: 16.089566
+	AIC for validation data: 18.754631
+	AIC for total data: 41.608707
+
+Posterior 1:
+	RMSD: 0.043169
+	Weighted RMSD: 0.043169
+	RMSD for validation data: 0.904159
+	RMSD for total data: 5.782860
+	AIC: 16.086339
+	AIC for validation data: 17.808318
+	AIC for total data: 27.565719
+
+Posterior 1:
+	RMSD: 0.040566
+	Weighted RMSD: 0.040566
+	RMSD for validation data: 0.864490
+	RMSD for total data: 8.880649
+	AIC: 16.081132
+	AIC for validation data: 17.728980
+	AIC for total data: 33.761297
+
+Posterior 1:
+	RMSD: 0.042440
+	Weighted RMSD: 0.042440
+	RMSD for validation data: 0.708100
+	RMSD for total data: 3.785681
+	AIC: 16.084880
+	AIC for validation data: 17.416200
+	AIC for total data: 23.571361
+
+Posterior 1:
+	RMSD: 0.042411
+	Weighted RMSD: 0.042411
+	RMSD for validation data: 0.683838
+	RMSD for total data: 5.087323
+	AIC: 16.084822
+	AIC for validation data: 17.367675
+	AIC for total data: 26.174645
+
+Posterior 1:
+	RMSD: 0.037114
+	Weighted RMSD: 0.037114
+	RMSD for validation data: 0.686504
+	RMSD for total data: 4.566812
+	AIC: 16.074228
+	AIC for validation data: 17.373009
+	AIC for total data: 25.133624
+
+Posterior 1:
+	RMSD: 0.032162
+	Weighted RMSD: 0.032162
+	RMSD for validation data: 0.209139
+	RMSD for total data: 3.012832
+	AIC: 16.064324
+	AIC for validation data: 16.418279
+	AIC for total data: 22.025664
+
+Posterior 1:
+	RMSD: 0.031864
+	Weighted RMSD: 0.031864
+	RMSD for validation data: 0.235796
+	RMSD for total data: 5.043076
+	AIC: 16.063728
+	AIC for validation data: 16.471593
+	AIC for total data: 26.086153
+
+Posterior 1:
+	RMSD: 0.032297
+	Weighted RMSD: 0.032297
+	RMSD for validation data: 0.227564
+	RMSD for total data: 3.521063
+	AIC: 16.064594
+	AIC for validation data: 16.455128
+	AIC for total data: 23.042127
+
+Posterior 1:
+	RMSD: 0.027032
+	Weighted RMSD: 0.027032
+	RMSD for validation data: 0.170916
+	RMSD for total data: 0.401862
+	AIC: 16.054064
+	AIC for validation data: 16.341833
+	AIC for total data: 16.803725
+
+Posterior 1:
+	RMSD: 0.026692
+	Weighted RMSD: 0.026692
+	RMSD for validation data: 0.206168
+	RMSD for total data: 2.774324
+	AIC: 16.053383
+	AIC for validation data: 16.412336
+	AIC for total data: 21.548648
+
+Posterior 1:
+	RMSD: 0.025824
+	Weighted RMSD: 0.025824
+	RMSD for validation data: 0.084692
+	RMSD for total data: 0.458683
+	AIC: 16.051649
+	AIC for validation data: 16.169385
+	AIC for total data: 16.917367
+
+Posterior 1:
+	RMSD: 0.015897
+	Weighted RMSD: 0.015897
+	RMSD for validation data: 0.308897
+	RMSD for total data: 4.375184
+	AIC: 16.031794
+	AIC for validation data: 16.617794
+	AIC for total data: 24.750367
+
+Posterior 1:
+	RMSD: 0.016166
+	Weighted RMSD: 0.016166
+	RMSD for validation data: 0.304337
+	RMSD for total data: 1.908660
+	AIC: 16.032332
+	AIC for validation data: 16.608675
+	AIC for total data: 19.817320
+
+Posterior 1:
+	RMSD: 0.016464
+	Weighted RMSD: 0.016464
+	RMSD for validation data: 0.328806
+	RMSD for total data: 0.449476
+	AIC: 16.032927
+	AIC for validation data: 16.657611
+	AIC for total data: 16.898952
+
+Posterior 1:
+	RMSD: 0.013797
+	Weighted RMSD: 0.013797
+	RMSD for validation data: 0.359517
+	RMSD for total data: 2.261386
+	AIC: 16.027593
+	AIC for validation data: 16.719034
+	AIC for total data: 20.522771
+
+Posterior 1:
+	RMSD: 0.013274
+	Weighted RMSD: 0.013274
+	RMSD for validation data: 0.371709
+	RMSD for total data: 3.802667
+	AIC: 16.026547
+	AIC for validation data: 16.743419
+	AIC for total data: 23.605333
+
+Posterior 1:
+	RMSD: 0.012893
+	Weighted RMSD: 0.012893
+	RMSD for validation data: 0.320623
+	RMSD for total data: 4.991934
+	AIC: 16.025785
+	AIC for validation data: 16.641246
+	AIC for total data: 25.983869
+
+Posterior 1:
+	RMSD: 0.013730
+	Weighted RMSD: 0.013730
+	RMSD for validation data: 0.219661
+	RMSD for total data: 0.953658
+	AIC: 16.027460
+	AIC for validation data: 16.439322
+	AIC for total data: 17.907315
+
+Posterior 1:
+	RMSD: 0.012645
+	Weighted RMSD: 0.012645
+	RMSD for validation data: 0.263799
+	RMSD for total data: 2.403262
+	AIC: 16.025290
+	AIC for validation data: 16.527599
+	AIC for total data: 20.806523
+
+Posterior 1:
+	RMSD: 0.012166
+	Weighted RMSD: 0.012166
+	RMSD for validation data: 0.227597
+	RMSD for total data: 2.210321
+	AIC: 16.024333
+	AIC for validation data: 16.455194
+	AIC for total data: 20.420642
+
+Posterior 1:
+	RMSD: 0.014641
+	Weighted RMSD: 0.014641
+	RMSD for validation data: 0.103887
+	RMSD for total data: 0.821448
+	AIC: 16.029281
+	AIC for validation data: 16.207774
+	AIC for total data: 17.642895
+
+Posterior 1:
+	RMSD: 0.013989
+	Weighted RMSD: 0.013989
+	RMSD for validation data: 0.202312
+	RMSD for total data: 4.765097
+	AIC: 16.027978
+	AIC for validation data: 16.404624
+	AIC for total data: 25.530194
+
+Posterior 1:
+	RMSD: 0.013968
+	Weighted RMSD: 0.013968
+	RMSD for validation data: 0.230468
+	RMSD for total data: 3.498802
+	AIC: 16.027935
+	AIC for validation data: 16.460936
+	AIC for total data: 22.997604
+
+Posterior 1:
+	RMSD: 0.024520
+	Weighted RMSD: 0.024520
+	RMSD for validation data: 0.095552
+	RMSD for total data: 0.760775
+	AIC: 16.049039
+	AIC for validation data: 16.191105
+	AIC for total data: 17.521549
+
+Posterior 1:
+	RMSD: 0.032208
+	Weighted RMSD: 0.032208
+	RMSD for validation data: 0.210904
+	RMSD for total data: 2.369570
+	AIC: 16.064416
+	AIC for validation data: 16.421807
+	AIC for total data: 20.739139
+
+Posterior 1:
+	RMSD: 0.021386
+	Weighted RMSD: 0.021386
+	RMSD for validation data: 0.074385
+	RMSD for total data: 0.885797
+	AIC: 16.042773
+	AIC for validation data: 16.148771
+	AIC for total data: 17.771593
+
+Posterior 1:
+	RMSD: 0.016112
+	Weighted RMSD: 0.016112
+	RMSD for validation data: 0.056084
+	RMSD for total data: 0.509512
+	AIC: 16.032224
+	AIC for validation data: 16.112167
+	AIC for total data: 17.019024
+
+Posterior 1:
+	RMSD: 0.015220
+	Weighted RMSD: 0.015220
+	RMSD for validation data: 0.043630
+	RMSD for total data: 0.376213
+	AIC: 16.030441
+	AIC for validation data: 16.087261
+	AIC for total data: 16.752427
+
+Posterior 1:
+	RMSD: 0.014358
+	Weighted RMSD: 0.014358
+	RMSD for validation data: 0.106735
+	RMSD for total data: 1.404917
+	AIC: 16.028715
+	AIC for validation data: 16.213471
+	AIC for total data: 18.809834
+
+Posterior 1:
+	RMSD: 0.011153
+	Weighted RMSD: 0.011153
+	RMSD for validation data: 0.137443
+	RMSD for total data: 0.558361
+	AIC: 16.022306
+	AIC for validation data: 16.274886
+	AIC for total data: 17.116722
+
+Posterior 1:
+	RMSD: 0.009990
+	Weighted RMSD: 0.009990
+	RMSD for validation data: 0.130433
+	RMSD for total data: 0.427439
+	AIC: 16.019979
+	AIC for validation data: 16.260866
+	AIC for total data: 16.854878
+
+Posterior 1:
+	RMSD: 0.009188
+	Weighted RMSD: 0.009188
+	RMSD for validation data: 0.133237
+	RMSD for total data: 0.369431
+	AIC: 16.018376
+	AIC for validation data: 16.266475
+	AIC for total data: 16.738862
+
+Posterior 1:
+	RMSD: 0.008565
+	Weighted RMSD: 0.008565
+	RMSD for validation data: 0.190027
+	RMSD for total data: 0.369198
+	AIC: 16.017130
+	AIC for validation data: 16.380055
+	AIC for total data: 16.738396
+
+Posterior 1:
+	RMSD: 0.008462
+	Weighted RMSD: 0.008462
+	RMSD for validation data: 0.182520
+	RMSD for total data: 0.580529
+	AIC: 16.016924
+	AIC for validation data: 16.365041
+	AIC for total data: 17.161057
+
+Posterior 1:
+	RMSD: 0.007948
+	Weighted RMSD: 0.007948
+	RMSD for validation data: 0.187806
+	RMSD for total data: 0.366450
+	AIC: 16.015897
+	AIC for validation data: 16.375612
+	AIC for total data: 16.732901
+
+Posterior 1:
+	RMSD: 0.017486
+	Weighted RMSD: 0.017486
+	RMSD for validation data: 0.167620
+	RMSD for total data: 0.414481
+	AIC: 16.034973
+	AIC for validation data: 16.335240
+	AIC for total data: 16.828962
+
+Posterior 1:
+	RMSD: 0.017522
+	Weighted RMSD: 0.017522
+	RMSD for validation data: 0.153364
+	RMSD for total data: 0.407465
+	AIC: 16.035043
+	AIC for validation data: 16.306727
+	AIC for total data: 16.814930
+
+Posterior 1:
+	RMSD: 0.017369
+	Weighted RMSD: 0.017369
+	RMSD for validation data: 0.172919
+	RMSD for total data: 0.393909
+	AIC: 16.034738
+	AIC for validation data: 16.345839
+	AIC for total data: 16.787817
+
+Posterior 1:
+	RMSD: 0.021995
+	Weighted RMSD: 0.021995
+	RMSD for validation data: 0.153184
+	RMSD for total data: 0.430058
+	AIC: 16.043990
+	AIC for validation data: 16.306368
+	AIC for total data: 16.860115
+
+Posterior 1:
+	RMSD: 0.024455
+	Weighted RMSD: 0.024455
+	RMSD for validation data: 0.224098
+	RMSD for total data: 0.417252
+	AIC: 16.048911
+	AIC for validation data: 16.448196
+	AIC for total data: 16.834504
+
+Posterior 1:
+	RMSD: 0.025076
+	Weighted RMSD: 0.025076
+	RMSD for validation data: 0.090601
+	RMSD for total data: 0.475841
+	AIC: 16.050153
+	AIC for validation data: 16.181202
+	AIC for total data: 16.951681
+
+Posterior 1:
+	RMSD: 0.020494
+	Weighted RMSD: 0.020494
+	RMSD for validation data: 0.157743
+	RMSD for total data: 0.500147
+	AIC: 16.040988
+	AIC for validation data: 16.315487
+	AIC for total data: 17.000294
+
+Posterior 1:
+	RMSD: 0.020460
+	Weighted RMSD: 0.020460
+	RMSD for validation data: 0.147192
+	RMSD for total data: 0.489966
+	AIC: 16.040921
+	AIC for validation data: 16.294383
+	AIC for total data: 16.979932
+
+Posterior 1:
+	RMSD: 0.022390
+	Weighted RMSD: 0.022390
+	RMSD for validation data: 0.214286
+	RMSD for total data: 0.494624
+	AIC: 16.044780
+	AIC for validation data: 16.428571
+	AIC for total data: 16.989248
+
+Posterior 1:
+	RMSD: 0.018136
+	Weighted RMSD: 0.018136
+	RMSD for validation data: 0.239380
+	RMSD for total data: 0.494120
+	AIC: 16.036273
+	AIC for validation data: 16.478760
+	AIC for total data: 16.988240
+
+Posterior 1:
+	RMSD: 0.017981
+	Weighted RMSD: 0.017981
+	RMSD for validation data: 0.256938
+	RMSD for total data: 0.485348
+	AIC: 16.035962
+	AIC for validation data: 16.513876
+	AIC for total data: 16.970696
+
+Posterior 1:
+	RMSD: 0.018099
+	Weighted RMSD: 0.018099
+	RMSD for validation data: 0.236136
+	RMSD for total data: 0.493388
+	AIC: 16.036198
+	AIC for validation data: 16.472273
+	AIC for total data: 16.986777
+
+Posterior 1:
+	RMSD: 0.018480
+	Weighted RMSD: 0.018480
+	RMSD for validation data: 0.293900
+	RMSD for total data: 0.493164
+	AIC: 16.036960
+	AIC for validation data: 16.587800
+	AIC for total data: 16.986329
+
+Posterior 1:
+	RMSD: 0.018496
+	Weighted RMSD: 0.018496
+	RMSD for validation data: 0.292707
+	RMSD for total data: 0.492467
+	AIC: 16.036993
+	AIC for validation data: 16.585415
+	AIC for total data: 16.984934
+
+Posterior 1:
+	RMSD: 0.018564
+	Weighted RMSD: 0.018564
+	RMSD for validation data: 0.282436
+	RMSD for total data: 0.496266
+	AIC: 16.037128
+	AIC for validation data: 16.564872
+	AIC for total data: 16.992533
+
+Posterior 1:
+	RMSD: 0.022923
+	Weighted RMSD: 0.022923
+	RMSD for validation data: 0.263623
+	RMSD for total data: 0.499500
+	AIC: 16.045845
+	AIC for validation data: 16.527246
+	AIC for total data: 16.999000
+
+Posterior 1:
+	RMSD: 0.023826
+	Weighted RMSD: 0.023826
+	RMSD for validation data: 0.218398
+	RMSD for total data: 0.503422
+	AIC: 16.047653
+	AIC for validation data: 16.436796
+	AIC for total data: 17.006844
+
+Posterior 1:
+	RMSD: 0.023773
+	Weighted RMSD: 0.023773
+	RMSD for validation data: 0.269784
+	RMSD for total data: 0.489983
+	AIC: 16.047546
+	AIC for validation data: 16.539567
+	AIC for total data: 16.979966
+
+Posterior 1:
+	RMSD: 0.023076
+	Weighted RMSD: 0.023076
+	RMSD for validation data: 0.174580
+	RMSD for total data: 0.502081
+	AIC: 16.046151
+	AIC for validation data: 16.349160
+	AIC for total data: 17.004161
+
+Posterior 1:
+	RMSD: 0.022326
+	Weighted RMSD: 0.022326
+	RMSD for validation data: 0.225347
+	RMSD for total data: 0.503109
+	AIC: 16.044652
+	AIC for validation data: 16.450693
+	AIC for total data: 17.006218
+
+Posterior 1:
+	RMSD: 0.021067
+	Weighted RMSD: 0.021067
+	RMSD for validation data: 0.191892
+	RMSD for total data: 0.488471
+	AIC: 16.042135
+	AIC for validation data: 16.383783
+	AIC for total data: 16.976943
+
+Posterior 1:
+	RMSD: 0.020245
+	Weighted RMSD: 0.020245
+	RMSD for validation data: 0.254420
+	RMSD for total data: 0.484224
+	AIC: 16.040490
+	AIC for validation data: 16.508841
+	AIC for total data: 16.968449
+
+Posterior 1:
+	RMSD: 0.018739
+	Weighted RMSD: 0.018739
+	RMSD for validation data: 0.202654
+	RMSD for total data: 0.481622
+	AIC: 16.037477
+	AIC for validation data: 16.405309
+	AIC for total data: 16.963244
+
+Posterior 1:
+	RMSD: 0.015291
+	Weighted RMSD: 0.015291
+	RMSD for validation data: 0.183957
+	RMSD for total data: 0.500833
+	AIC: 16.030582
+	AIC for validation data: 16.367914
+	AIC for total data: 17.001665
+
+Posterior 1:
+	RMSD: 0.016963
+	Weighted RMSD: 0.016963
+	RMSD for validation data: 0.228661
+	RMSD for total data: 0.499581
+	AIC: 16.033926
+	AIC for validation data: 16.457321
+	AIC for total data: 16.999162
+
+Posterior 1:
+	RMSD: 0.016219
+	Weighted RMSD: 0.016219
+	RMSD for validation data: 0.202660
+	RMSD for total data: 0.496609
+	AIC: 16.032438
+	AIC for validation data: 16.405319
+	AIC for total data: 16.993218
+
+Posterior 1:
+	RMSD: 0.015125
+	Weighted RMSD: 0.015125
+	RMSD for validation data: 0.167486
+	RMSD for total data: 0.492149
+	AIC: 16.030250
+	AIC for validation data: 16.334971
+	AIC for total data: 16.984299
+
+Posterior 1:
+	RMSD: 0.011222
+	Weighted RMSD: 0.011222
+	RMSD for validation data: 0.181694
+	RMSD for total data: 0.496610
+	AIC: 16.022443
+	AIC for validation data: 16.363387
+	AIC for total data: 16.993220
+
+Posterior 1:
+	RMSD: 0.011981
+	Weighted RMSD: 0.011981
+	RMSD for validation data: 0.235231
+	RMSD for total data: 0.488319
+	AIC: 16.023963
+	AIC for validation data: 16.470461
+	AIC for total data: 16.976637
+
+Posterior 1:
+	RMSD: 0.011458
+	Weighted RMSD: 0.011458
+	RMSD for validation data: 0.275918
+	RMSD for total data: 0.456259
+	AIC: 16.022915
+	AIC for validation data: 16.551836
+	AIC for total data: 16.912518
+
+Posterior 1:
+	RMSD: 0.013797
+	Weighted RMSD: 0.013797
+	RMSD for validation data: 0.284530
+	RMSD for total data: 0.480532
+	AIC: 16.027595
+	AIC for validation data: 16.569061
+	AIC for total data: 16.961065
+
+Posterior 1:
+	RMSD: 0.013636
+	Weighted RMSD: 0.013636
+	RMSD for validation data: 0.161696
+	RMSD for total data: 0.501680
+	AIC: 16.027271
+	AIC for validation data: 16.323391
+	AIC for total data: 17.003360
+
+Posterior 1:
+	RMSD: 0.012474
+	Weighted RMSD: 0.012474
+	RMSD for validation data: 0.170034
+	RMSD for total data: 0.501981
+	AIC: 16.024948
+	AIC for validation data: 16.340068
+	AIC for total data: 17.003963
+
+Posterior 1:
+	RMSD: 0.013443
+	Weighted RMSD: 0.013443
+	RMSD for validation data: 0.268675
+	RMSD for total data: 0.502064
+	AIC: 16.026886
+	AIC for validation data: 16.537351
+	AIC for total data: 17.004128
+
+Posterior 1:
+	RMSD: 0.011429
+	Weighted RMSD: 0.011429
+	RMSD for validation data: 0.058989
+	RMSD for total data: 0.298488
+	AIC: 16.022858
+	AIC for validation data: 16.117977
+	AIC for total data: 16.596975
+
+Posterior 1:
+	RMSD: 0.012303
+	Weighted RMSD: 0.012303
+	RMSD for validation data: 0.097103
+	RMSD for total data: 0.489589
+	AIC: 16.024607
+	AIC for validation data: 16.194206
+	AIC for total data: 16.979178
+
+Posterior 1:
+	RMSD: 0.011430
+	Weighted RMSD: 0.011430
+	RMSD for validation data: 0.145167
+	RMSD for total data: 0.428601
+	AIC: 16.022861
+	AIC for validation data: 16.290333
+	AIC for total data: 16.857201
+
+Posterior 1:
+	RMSD: 0.010952
+	Weighted RMSD: 0.010952
+	RMSD for validation data: 0.104844
+	RMSD for total data: 0.305652
+	AIC: 16.021903
+	AIC for validation data: 16.209687
+	AIC for total data: 16.611304
+
+Posterior 1:
+	RMSD: 0.011110
+	Weighted RMSD: 0.011110
+	RMSD for validation data: 0.084858
+	RMSD for total data: 0.300450
+	AIC: 16.022219
+	AIC for validation data: 16.169717
+	AIC for total data: 16.600899
+
+Posterior 1:
+	RMSD: 0.010333
+	Weighted RMSD: 0.010333
+	RMSD for validation data: 0.125129
+	RMSD for total data: 0.368029
+	AIC: 16.020666
+	AIC for validation data: 16.250259
+	AIC for total data: 16.736058
+
+Posterior 1:
+	RMSD: 0.011273
+	Weighted RMSD: 0.011273
+	RMSD for validation data: 0.154468
+	RMSD for total data: 0.494263
+	AIC: 16.022546
+	AIC for validation data: 16.308936
+	AIC for total data: 16.988525
+
+Posterior 1:
+	RMSD: 0.009508
+	Weighted RMSD: 0.009508
+	RMSD for validation data: 0.108991
+	RMSD for total data: 0.249433
+	AIC: 16.019016
+	AIC for validation data: 16.217982
+	AIC for total data: 16.498866
+
+Posterior 1:
+	RMSD: 0.010177
+	Weighted RMSD: 0.010177
+	RMSD for validation data: 0.111452
+	RMSD for total data: 0.490853
+	AIC: 16.020353
+	AIC for validation data: 16.222905
+	AIC for total data: 16.981705
+
+Posterior 1:
+	RMSD: 0.009447
+	Weighted RMSD: 0.009447
+	RMSD for validation data: 0.117475
+	RMSD for total data: 0.392548
+	AIC: 16.018894
+	AIC for validation data: 16.234950
+	AIC for total data: 16.785095
+
+Posterior 1:
+	RMSD: 0.008691
+	Weighted RMSD: 0.008691
+	RMSD for validation data: 0.231221
+	RMSD for total data: 0.235288
+	AIC: 16.017381
+	AIC for validation data: 16.462443
+	AIC for total data: 16.470576
+
+Posterior 1:
+	RMSD: 0.007895
+	Weighted RMSD: 0.007895
+	RMSD for validation data: 0.109054
+	RMSD for total data: 0.499800
+	AIC: 16.015790
+	AIC for validation data: 16.218108
+	AIC for total data: 16.999601
+
+Posterior 1:
+	RMSD: 0.008128
+	Weighted RMSD: 0.008128
+	RMSD for validation data: 0.147149
+	RMSD for total data: 0.477362
+	AIC: 16.016255
+	AIC for validation data: 16.294298
+	AIC for total data: 16.954724
+
+Posterior 1:
+	RMSD: 0.008213
+	Weighted RMSD: 0.008213
+	RMSD for validation data: 0.122455
+	RMSD for total data: 0.507255
+	AIC: 16.016426
+	AIC for validation data: 16.244910
+	AIC for total data: 17.014510
+
+Posterior 1:
+	RMSD: 0.006734
+	Weighted RMSD: 0.006734
+	RMSD for validation data: 0.094001
+	RMSD for total data: 0.507610
+	AIC: 16.013468
+	AIC for validation data: 16.188001
+	AIC for total data: 17.015220
+
+Posterior 1:
+	RMSD: 0.007538
+	Weighted RMSD: 0.007538
+	RMSD for validation data: 0.110495
+	RMSD for total data: 0.507617
+	AIC: 16.015076
+	AIC for validation data: 16.220990
+	AIC for total data: 17.015233
+
+Posterior 1:
+	RMSD: 0.007241
+	Weighted RMSD: 0.007241
+	RMSD for validation data: 0.118280
+	RMSD for total data: 0.507622
+	AIC: 16.014482
+	AIC for validation data: 16.236561
+	AIC for total data: 17.015244
+
+Posterior 1:
+	RMSD: 0.008074
+	Weighted RMSD: 0.008074
+	RMSD for validation data: 0.127114
+	RMSD for total data: 0.507621
+	AIC: 16.016149
+	AIC for validation data: 16.254227
+	AIC for total data: 17.015243
+
+Posterior 1:
+	RMSD: 0.007223
+	Weighted RMSD: 0.007223
+	RMSD for validation data: 0.083488
+	RMSD for total data: 0.507573
+	AIC: 16.014445
+	AIC for validation data: 16.166976
+	AIC for total data: 17.015146
+
+Posterior 1:
+	RMSD: 0.007025
+	Weighted RMSD: 0.007025
+	RMSD for validation data: 0.083564
+	RMSD for total data: 0.507479
+	AIC: 16.014050
+	AIC for validation data: 16.167129
+	AIC for total data: 17.014958
+
+Posterior 1:
+	RMSD: 0.007579
+	Weighted RMSD: 0.007579
+	RMSD for validation data: 0.092267
+	RMSD for total data: 0.507609
+	AIC: 16.015158
+	AIC for validation data: 16.184533
+	AIC for total data: 17.015219
+
+Posterior 1:
+	RMSD: 0.007490
+	Weighted RMSD: 0.007490
+	RMSD for validation data: 0.126832
+	RMSD for total data: 0.507621
+	AIC: 16.014980
+	AIC for validation data: 16.253663
+	AIC for total data: 17.015243
+
+Posterior 1:
+	RMSD: 0.007033
+	Weighted RMSD: 0.007033
+	RMSD for validation data: 0.125996
+	RMSD for total data: 0.507621
+	AIC: 16.014066
+	AIC for validation data: 16.251991
+	AIC for total data: 17.015242
+
+Posterior 1:
+	RMSD: 0.010105
+	Weighted RMSD: 0.010105
+	RMSD for validation data: 0.300287
+	RMSD for total data: 0.507615
+	AIC: 16.020209
+	AIC for validation data: 16.600574
+	AIC for total data: 17.015230
+
+Posterior 1:
+	RMSD: 0.010314
+	Weighted RMSD: 0.010314
+	RMSD for validation data: 0.112567
+	RMSD for total data: 0.507625
+	AIC: 16.020628
+	AIC for validation data: 16.225135
+	AIC for total data: 17.015250
+
+Posterior 1:
+	RMSD: 0.009892
+	Weighted RMSD: 0.009892
+	RMSD for validation data: 0.255337
+	RMSD for total data: 0.507619
+	AIC: 16.019783
+	AIC for validation data: 16.510674
+	AIC for total data: 17.015239
+
+Posterior 1:
+	RMSD: 0.007424
+	Weighted RMSD: 0.007424
+	RMSD for validation data: 0.181507
+	RMSD for total data: 0.507631
+	AIC: 16.014849
+	AIC for validation data: 16.363014
+	AIC for total data: 17.015263
+
+Posterior 1:
+	RMSD: 0.006868
+	Weighted RMSD: 0.006868
+	RMSD for validation data: 0.297215
+	RMSD for total data: 0.507616
+	AIC: 16.013736
+	AIC for validation data: 16.594430
+	AIC for total data: 17.015232
+
+Posterior 1:
+	RMSD: 0.008639
+	Weighted RMSD: 0.008639
+	RMSD for validation data: 0.250303
+	RMSD for total data: 0.507628
+	AIC: 16.017278
+	AIC for validation data: 16.500605
+	AIC for total data: 17.015257
+
+Posterior 1:
+	RMSD: 0.008170
+	Weighted RMSD: 0.008170
+	RMSD for validation data: 0.191899
+	RMSD for total data: 0.506778
+	AIC: 16.016341
+	AIC for validation data: 16.383799
+	AIC for total data: 17.013556
+
+Posterior 1:
+	RMSD: 0.007831
+	Weighted RMSD: 0.007831
+	RMSD for validation data: 0.183600
+	RMSD for total data: 0.507521
+	AIC: 16.015662
+	AIC for validation data: 16.367201
+	AIC for total data: 17.015041
+
+Posterior 1:
+	RMSD: 0.006218
+	Weighted RMSD: 0.006218
+	RMSD for validation data: 0.143716
+	RMSD for total data: 0.260135
+	AIC: 16.012437
+	AIC for validation data: 16.287432
+	AIC for total data: 16.520269
+
+Posterior 1:
+	RMSD: 0.005364
+	Weighted RMSD: 0.005364
+	RMSD for validation data: 0.139939
+	RMSD for total data: 0.208119
+	AIC: 16.010728
+	AIC for validation data: 16.279879
+	AIC for total data: 16.416238
+
+Posterior 1:
+	RMSD: 0.006393
+	Weighted RMSD: 0.006393
+	RMSD for validation data: 0.060815
+	RMSD for total data: 0.386200
+	AIC: 16.012785
+	AIC for validation data: 16.121630
+	AIC for total data: 16.772400
+
+Posterior 1:
+	RMSD: 0.006324
+	Weighted RMSD: 0.006324
+	RMSD for validation data: 0.126608
+	RMSD for total data: 0.206842
+	AIC: 16.012649
+	AIC for validation data: 16.253216
+	AIC for total data: 16.413684
+
+Posterior 1:
+	RMSD: 0.009008
+	Weighted RMSD: 0.009008
+	RMSD for validation data: 0.269255
+	RMSD for total data: 0.507635
+	AIC: 16.018015
+	AIC for validation data: 16.538509
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.007136
+	Weighted RMSD: 0.007136
+	RMSD for validation data: 0.250266
+	RMSD for total data: 0.506859
+	AIC: 16.014272
+	AIC for validation data: 16.500532
+	AIC for total data: 17.013717
+
+Posterior 1:
+	RMSD: 0.008877
+	Weighted RMSD: 0.008877
+	RMSD for validation data: 0.222539
+	RMSD for total data: 0.507635
+	AIC: 16.017754
+	AIC for validation data: 16.445078
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.007409
+	Weighted RMSD: 0.007409
+	RMSD for validation data: 0.055652
+	RMSD for total data: 0.507632
+	AIC: 16.014817
+	AIC for validation data: 16.111305
+	AIC for total data: 17.015265
+
+Posterior 1:
+	RMSD: 0.008943
+	Weighted RMSD: 0.008943
+	RMSD for validation data: 0.182270
+	RMSD for total data: 0.507635
+	AIC: 16.017886
+	AIC for validation data: 16.364541
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007723
+	Weighted RMSD: 0.007723
+	RMSD for validation data: 0.236941
+	RMSD for total data: 0.507635
+	AIC: 16.015447
+	AIC for validation data: 16.473882
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005951
+	Weighted RMSD: 0.005951
+	RMSD for validation data: 0.228980
+	RMSD for total data: 0.507635
+	AIC: 16.011901
+	AIC for validation data: 16.457960
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.004970
+	Weighted RMSD: 0.004970
+	RMSD for validation data: 0.202103
+	RMSD for total data: 0.507635
+	AIC: 16.009941
+	AIC for validation data: 16.404206
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.006096
+	Weighted RMSD: 0.006096
+	RMSD for validation data: 0.185603
+	RMSD for total data: 0.507635
+	AIC: 16.012192
+	AIC for validation data: 16.371207
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005589
+	Weighted RMSD: 0.005589
+	RMSD for validation data: 0.079963
+	RMSD for total data: 0.505030
+	AIC: 16.011177
+	AIC for validation data: 16.159927
+	AIC for total data: 17.010061
+
+Posterior 1:
+	RMSD: 0.005703
+	Weighted RMSD: 0.005703
+	RMSD for validation data: 0.067410
+	RMSD for total data: 0.247915
+	AIC: 16.011407
+	AIC for validation data: 16.134819
+	AIC for total data: 16.495830
+
+Posterior 1:
+	RMSD: 0.004571
+	Weighted RMSD: 0.004571
+	RMSD for validation data: 0.157231
+	RMSD for total data: 0.385600
+	AIC: 16.009142
+	AIC for validation data: 16.314462
+	AIC for total data: 16.771201
+
+Posterior 1:
+	RMSD: 0.008658
+	Weighted RMSD: 0.008658
+	RMSD for validation data: 0.029598
+	RMSD for total data: 0.507635
+	AIC: 16.017316
+	AIC for validation data: 16.059196
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.009033
+	Weighted RMSD: 0.009033
+	RMSD for validation data: 0.203545
+	RMSD for total data: 0.507635
+	AIC: 16.018065
+	AIC for validation data: 16.407090
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.008213
+	Weighted RMSD: 0.008213
+	RMSD for validation data: 0.146961
+	RMSD for total data: 0.507635
+	AIC: 16.016425
+	AIC for validation data: 16.293922
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012860
+	Weighted RMSD: 0.012860
+	RMSD for validation data: 0.068021
+	RMSD for total data: 0.507635
+	AIC: 16.025721
+	AIC for validation data: 16.136042
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.018387
+	Weighted RMSD: 0.018387
+	RMSD for validation data: 0.106980
+	RMSD for total data: 0.305810
+	AIC: 16.036775
+	AIC for validation data: 16.213961
+	AIC for total data: 16.611621
+
+Posterior 1:
+	RMSD: 0.013682
+	Weighted RMSD: 0.013682
+	RMSD for validation data: 0.176966
+	RMSD for total data: 0.507635
+	AIC: 16.027364
+	AIC for validation data: 16.353931
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012801
+	Weighted RMSD: 0.012801
+	RMSD for validation data: 0.148134
+	RMSD for total data: 0.507636
+	AIC: 16.025603
+	AIC for validation data: 16.296268
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012556
+	Weighted RMSD: 0.012556
+	RMSD for validation data: 0.286410
+	RMSD for total data: 0.507636
+	AIC: 16.025112
+	AIC for validation data: 16.572819
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.011272
+	Weighted RMSD: 0.011272
+	RMSD for validation data: 0.139103
+	RMSD for total data: 0.507635
+	AIC: 16.022545
+	AIC for validation data: 16.278206
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007952
+	Weighted RMSD: 0.007952
+	RMSD for validation data: 0.190992
+	RMSD for total data: 0.507635
+	AIC: 16.015904
+	AIC for validation data: 16.381983
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009096
+	Weighted RMSD: 0.009096
+	RMSD for validation data: 0.183507
+	RMSD for total data: 0.507636
+	AIC: 16.018192
+	AIC for validation data: 16.367013
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009549
+	Weighted RMSD: 0.009549
+	RMSD for validation data: 0.205043
+	RMSD for total data: 0.507635
+	AIC: 16.019098
+	AIC for validation data: 16.410087
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.008100
+	Weighted RMSD: 0.008100
+	RMSD for validation data: 0.220790
+	RMSD for total data: 0.507635
+	AIC: 16.016200
+	AIC for validation data: 16.441579
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007503
+	Weighted RMSD: 0.007503
+	RMSD for validation data: 0.250287
+	RMSD for total data: 0.507635
+	AIC: 16.015006
+	AIC for validation data: 16.500574
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007427
+	Weighted RMSD: 0.007427
+	RMSD for validation data: 0.284344
+	RMSD for total data: 0.507636
+	AIC: 16.014854
+	AIC for validation data: 16.568688
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.011440
+	Weighted RMSD: 0.011440
+	RMSD for validation data: 0.392646
+	RMSD for total data: 0.507635
+	AIC: 16.022880
+	AIC for validation data: 16.785293
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010537
+	Weighted RMSD: 0.010537
+	RMSD for validation data: 0.359009
+	RMSD for total data: 0.507635
+	AIC: 16.021073
+	AIC for validation data: 16.718019
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009935
+	Weighted RMSD: 0.009935
+	RMSD for validation data: 0.326507
+	RMSD for total data: 0.507636
+	AIC: 16.019869
+	AIC for validation data: 16.653014
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.011767
+	Weighted RMSD: 0.011767
+	RMSD for validation data: 0.215900
+	RMSD for total data: 0.507635
+	AIC: 16.023533
+	AIC for validation data: 16.431800
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012967
+	Weighted RMSD: 0.012967
+	RMSD for validation data: 0.213588
+	RMSD for total data: 0.507635
+	AIC: 16.025933
+	AIC for validation data: 16.427175
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010306
+	Weighted RMSD: 0.010306
+	RMSD for validation data: 0.185650
+	RMSD for total data: 0.507635
+	AIC: 16.020612
+	AIC for validation data: 16.371300
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006752
+	Weighted RMSD: 0.006752
+	RMSD for validation data: 0.154634
+	RMSD for total data: 0.507635
+	AIC: 16.013505
+	AIC for validation data: 16.309267
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009864
+	Weighted RMSD: 0.009864
+	RMSD for validation data: 0.294045
+	RMSD for total data: 0.507635
+	AIC: 16.019729
+	AIC for validation data: 16.588090
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007212
+	Weighted RMSD: 0.007212
+	RMSD for validation data: 0.251644
+	RMSD for total data: 0.507635
+	AIC: 16.014424
+	AIC for validation data: 16.503288
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005402
+	Weighted RMSD: 0.005402
+	RMSD for validation data: 0.196349
+	RMSD for total data: 0.507635
+	AIC: 16.010805
+	AIC for validation data: 16.392699
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005686
+	Weighted RMSD: 0.005686
+	RMSD for validation data: 0.209856
+	RMSD for total data: 0.507635
+	AIC: 16.011372
+	AIC for validation data: 16.419712
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005402
+	Weighted RMSD: 0.005402
+	RMSD for validation data: 0.155284
+	RMSD for total data: 0.507635
+	AIC: 16.010805
+	AIC for validation data: 16.310568
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006621
+	Weighted RMSD: 0.006621
+	RMSD for validation data: 0.270853
+	RMSD for total data: 0.507634
+	AIC: 16.013242
+	AIC for validation data: 16.541705
+	AIC for total data: 17.015269
+
+Posterior 1:
+	RMSD: 0.005947
+	Weighted RMSD: 0.005947
+	RMSD for validation data: 0.305352
+	RMSD for total data: 0.507635
+	AIC: 16.011893
+	AIC for validation data: 16.610704
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006163
+	Weighted RMSD: 0.006163
+	RMSD for validation data: 0.302007
+	RMSD for total data: 0.507635
+	AIC: 16.012325
+	AIC for validation data: 16.604014
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009571
+	Weighted RMSD: 0.009571
+	RMSD for validation data: 0.151286
+	RMSD for total data: 0.507636
+	AIC: 16.019143
+	AIC for validation data: 16.302573
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.008607
+	Weighted RMSD: 0.008607
+	RMSD for validation data: 0.247318
+	RMSD for total data: 0.507635
+	AIC: 16.017213
+	AIC for validation data: 16.494637
+	AIC for total data: 17.015270
+
+Posterior 1:
+	RMSD: 0.009679
+	Weighted RMSD: 0.009679
+	RMSD for validation data: 0.249571
+	RMSD for total data: 0.507636
+	AIC: 16.019359
+	AIC for validation data: 16.499143
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009162
+	Weighted RMSD: 0.009162
+	RMSD for validation data: 0.120831
+	RMSD for total data: 0.507636
+	AIC: 16.018324
+	AIC for validation data: 16.241663
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.008814
+	Weighted RMSD: 0.008814
+	RMSD for validation data: 0.089040
+	RMSD for total data: 0.507636
+	AIC: 16.017628
+	AIC for validation data: 16.178079
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007392
+	Weighted RMSD: 0.007392
+	RMSD for validation data: 0.071710
+	RMSD for total data: 0.507636
+	AIC: 16.014783
+	AIC for validation data: 16.143419
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006559
+	Weighted RMSD: 0.006559
+	RMSD for validation data: 0.139516
+	RMSD for total data: 0.504782
+	AIC: 16.013117
+	AIC for validation data: 16.279031
+	AIC for total data: 17.009564
+
+Posterior 1:
+	RMSD: 0.006670
+	Weighted RMSD: 0.006670
+	RMSD for validation data: 0.097689
+	RMSD for total data: 0.507636
+	AIC: 16.013341
+	AIC for validation data: 16.195378
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006567
+	Weighted RMSD: 0.006567
+	RMSD for validation data: 0.175078
+	RMSD for total data: 0.507636
+	AIC: 16.013134
+	AIC for validation data: 16.350157
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006400
+	Weighted RMSD: 0.006400
+	RMSD for validation data: 0.046325
+	RMSD for total data: 0.507635
+	AIC: 16.012800
+	AIC for validation data: 16.092651
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006652
+	Weighted RMSD: 0.006652
+	RMSD for validation data: 0.089703
+	RMSD for total data: 0.507636
+	AIC: 16.013304
+	AIC for validation data: 16.179406
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006391
+	Weighted RMSD: 0.006391
+	RMSD for validation data: 0.084599
+	RMSD for total data: 0.507636
+	AIC: 16.012782
+	AIC for validation data: 16.169198
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005904
+	Weighted RMSD: 0.005904
+	RMSD for validation data: 0.215655
+	RMSD for total data: 0.507636
+	AIC: 16.011809
+	AIC for validation data: 16.431310
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005255
+	Weighted RMSD: 0.005255
+	RMSD for validation data: 0.102584
+	RMSD for total data: 0.507636
+	AIC: 16.010509
+	AIC for validation data: 16.205169
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.004957
+	Weighted RMSD: 0.004957
+	RMSD for validation data: 0.143230
+	RMSD for total data: 0.507636
+	AIC: 16.009913
+	AIC for validation data: 16.286460
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.007879
+	Weighted RMSD: 0.007879
+	RMSD for validation data: 0.181723
+	RMSD for total data: 0.507636
+	AIC: 16.015758
+	AIC for validation data: 16.363447
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.005841
+	Weighted RMSD: 0.005841
+	RMSD for validation data: 0.075259
+	RMSD for total data: 0.507636
+	AIC: 16.011683
+	AIC for validation data: 16.150518
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.006997
+	Weighted RMSD: 0.006997
+	RMSD for validation data: 0.121308
+	RMSD for total data: 0.507636
+	AIC: 16.013994
+	AIC for validation data: 16.242615
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012193
+	Weighted RMSD: 0.012193
+	RMSD for validation data: 0.231083
+	RMSD for total data: 0.507636
+	AIC: 16.024386
+	AIC for validation data: 16.462167
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012856
+	Weighted RMSD: 0.012856
+	RMSD for validation data: 0.250380
+	RMSD for total data: 0.507636
+	AIC: 16.025713
+	AIC for validation data: 16.500761
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.008795
+	Weighted RMSD: 0.008795
+	RMSD for validation data: 0.153199
+	RMSD for total data: 0.507636
+	AIC: 16.017590
+	AIC for validation data: 16.306397
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012073
+	Weighted RMSD: 0.012073
+	RMSD for validation data: 0.188069
+	RMSD for total data: 0.507636
+	AIC: 16.024146
+	AIC for validation data: 16.376138
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.013432
+	Weighted RMSD: 0.013432
+	RMSD for validation data: 0.231157
+	RMSD for total data: 0.507636
+	AIC: 16.026863
+	AIC for validation data: 16.462313
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.011570
+	Weighted RMSD: 0.011570
+	RMSD for validation data: 0.274138
+	RMSD for total data: 0.507636
+	AIC: 16.023140
+	AIC for validation data: 16.548277
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.014482
+	Weighted RMSD: 0.014482
+	RMSD for validation data: 0.171157
+	RMSD for total data: 0.325268
+	AIC: 16.028964
+	AIC for validation data: 16.342314
+	AIC for total data: 16.650535
+
+Posterior 1:
+	RMSD: 0.018489
+	Weighted RMSD: 0.018489
+	RMSD for validation data: 0.123779
+	RMSD for total data: 0.507636
+	AIC: 16.036977
+	AIC for validation data: 16.247559
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012241
+	Weighted RMSD: 0.012241
+	RMSD for validation data: 0.143763
+	RMSD for total data: 0.507635
+	AIC: 16.024482
+	AIC for validation data: 16.287526
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.016755
+	Weighted RMSD: 0.016755
+	RMSD for validation data: 0.127079
+	RMSD for total data: 0.507636
+	AIC: 16.033511
+	AIC for validation data: 16.254159
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010924
+	Weighted RMSD: 0.010924
+	RMSD for validation data: 0.195214
+	RMSD for total data: 0.503214
+	AIC: 16.021847
+	AIC for validation data: 16.390428
+	AIC for total data: 17.006429
+
+Posterior 1:
+	RMSD: 0.009971
+	Weighted RMSD: 0.009971
+	RMSD for validation data: 0.178345
+	RMSD for total data: 0.507636
+	AIC: 16.019941
+	AIC for validation data: 16.356689
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009764
+	Weighted RMSD: 0.009764
+	RMSD for validation data: 0.155713
+	RMSD for total data: 0.507636
+	AIC: 16.019529
+	AIC for validation data: 16.311427
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009613
+	Weighted RMSD: 0.009613
+	RMSD for validation data: 0.172447
+	RMSD for total data: 0.507630
+	AIC: 16.019227
+	AIC for validation data: 16.344894
+	AIC for total data: 17.015260
+
+Posterior 1:
+	RMSD: 0.009711
+	Weighted RMSD: 0.009711
+	RMSD for validation data: 0.175398
+	RMSD for total data: 0.507636
+	AIC: 16.019422
+	AIC for validation data: 16.350796
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010445
+	Weighted RMSD: 0.010445
+	RMSD for validation data: 0.207573
+	RMSD for total data: 0.507636
+	AIC: 16.020891
+	AIC for validation data: 16.415146
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.009672
+	Weighted RMSD: 0.009672
+	RMSD for validation data: 0.160349
+	RMSD for total data: 0.507636
+	AIC: 16.019344
+	AIC for validation data: 16.320698
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010059
+	Weighted RMSD: 0.010059
+	RMSD for validation data: 0.148815
+	RMSD for total data: 0.507636
+	AIC: 16.020118
+	AIC for validation data: 16.297631
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012172
+	Weighted RMSD: 0.012172
+	RMSD for validation data: 0.191552
+	RMSD for total data: 0.507636
+	AIC: 16.024345
+	AIC for validation data: 16.383104
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.014151
+	Weighted RMSD: 0.014151
+	RMSD for validation data: 0.251053
+	RMSD for total data: 0.507636
+	AIC: 16.028302
+	AIC for validation data: 16.502106
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.011609
+	Weighted RMSD: 0.011609
+	RMSD for validation data: 0.159632
+	RMSD for total data: 0.507636
+	AIC: 16.023217
+	AIC for validation data: 16.319264
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.013010
+	Weighted RMSD: 0.013010
+	RMSD for validation data: 0.272060
+	RMSD for total data: 0.507636
+	AIC: 16.026020
+	AIC for validation data: 16.544121
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.013721
+	Weighted RMSD: 0.013721
+	RMSD for validation data: 0.290305
+	RMSD for total data: 0.507636
+	AIC: 16.027441
+	AIC for validation data: 16.580609
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.012552
+	Weighted RMSD: 0.012552
+	RMSD for validation data: 0.261544
+	RMSD for total data: 0.507636
+	AIC: 16.025105
+	AIC for validation data: 16.523089
+	AIC for total data: 17.015271
+
+Posterior 1:
+	RMSD: 0.010761
+	Weighted RMSD: 0.010761
+	RMSD for validation data: 0.083970
+	RMSD for total data: 0.507633
+	AIC: 16.021522
+	AIC for validation data: 16.167941
+	AIC for total data: 17.015266
+
+Posterior 1:
+	RMSD: 0.009595
+	Weighted RMSD: 0.009595
+	RMSD for validation data: 0.073646
+	RMSD for total data: 0.507627
+	AIC: 16.019190
+	AIC for validation data: 16.147292
+	AIC for total data: 17.015255
+
+Posterior 1:
+	RMSD: 0.009295
+	Weighted RMSD: 0.009295
+	RMSD for validation data: 0.081929
+	RMSD for total data: 0.507632
+	AIC: 16.018591
+	AIC for validation data: 16.163858
+	AIC for total data: 17.015264
+
+Posterior 1:
+	RMSD: 0.008125
+	Weighted RMSD: 0.008125
+	RMSD for validation data: 0.130144
+	RMSD for total data: 0.507634
+	AIC: 16.016250
+	AIC for validation data: 16.260289
+	AIC for total data: 17.015268
+
+Posterior 1:
+	RMSD: 0.007818
+	Weighted RMSD: 0.007818
+	RMSD for validation data: 0.105871
+	RMSD for total data: 0.507634
+	AIC: 16.015635
+	AIC for validation data: 16.211743
+	AIC for total data: 17.015267
+
+Posterior 1:
+	RMSD: 0.007594
+	Weighted RMSD: 0.007594
+	RMSD for validation data: 0.117223
+	RMSD for total data: 0.507633
+	AIC: 16.015188
+	AIC for validation data: 16.234446
+	AIC for total data: 17.015266
+
+Posterior 1:
+	RMSD: 0.009174
+	Weighted RMSD: 0.009174
+	RMSD for validation data: 0.141367
+	RMSD for total data: 0.507621
+	AIC: 16.018348
+	AIC for validation data: 16.282733
+	AIC for total data: 17.015243
+
+Posterior 1:
+	RMSD: 0.008992
+	Weighted RMSD: 0.008992
+	RMSD for validation data: 0.132281
+	RMSD for total data: 0.507598
+	AIC: 16.017984
+	AIC for validation data: 16.264562
+	AIC for total data: 17.015196
+
+Posterior 1:
+	RMSD: 0.008717
+	Weighted RMSD: 0.008717
+	RMSD for validation data: 0.136436
+	RMSD for total data: 0.507628
+	AIC: 16.017434
+	AIC for validation data: 16.272871
+	AIC for total data: 17.015257
+
+Posterior 1:
+	RMSD: 0.011799
+	Weighted RMSD: 0.011799
+	RMSD for validation data: 0.177847
+	RMSD for total data: 0.507514
+	AIC: 16.023598
+	AIC for validation data: 16.355693
+	AIC for total data: 17.015029
+
+Posterior 1:
+	RMSD: 0.012407
+	Weighted RMSD: 0.012407
+	RMSD for validation data: 0.148029
+	RMSD for total data: 0.507465
+	AIC: 16.024814
+	AIC for validation data: 16.296059
+	AIC for total data: 17.014930
+
+Posterior 1:
+	RMSD: 0.011546
+	Weighted RMSD: 0.011546
+	RMSD for validation data: 0.154405
+	RMSD for total data: 0.507590
+	AIC: 16.023093
+	AIC for validation data: 16.308809
+	AIC for total data: 17.015181
+
+Posterior 1:
+	RMSD: 0.012462
+	Weighted RMSD: 0.012462
+	RMSD for validation data: 0.140076
+	RMSD for total data: 0.433451
+	AIC: 16.024925
+	AIC for validation data: 16.280152
+	AIC for total data: 16.866902
+
+Posterior 1:
+	RMSD: 0.013566
+	Weighted RMSD: 0.013566
+	RMSD for validation data: 0.126620
+	RMSD for total data: 0.465400
+	AIC: 16.027132
+	AIC for validation data: 16.253241
+	AIC for total data: 16.930800
+
+Posterior 1:
+	RMSD: 0.011040
+	Weighted RMSD: 0.011040
+	RMSD for validation data: 0.185775
+	RMSD for total data: 0.495717
+	AIC: 16.022081
+	AIC for validation data: 16.371550
+	AIC for total data: 16.991434
+
+Posterior 1:
+	RMSD: 0.011366
+	Weighted RMSD: 0.011366
+	RMSD for validation data: 0.108085
+	RMSD for total data: 0.889322
+	AIC: 16.022732
+	AIC for validation data: 16.216170
+	AIC for total data: 17.778643
+
+Posterior 1:
+	RMSD: 0.011198
+	Weighted RMSD: 0.011198
+	RMSD for validation data: 0.133364
+	RMSD for total data: 0.588942
+	AIC: 16.022395
+	AIC for validation data: 16.266728
+	AIC for total data: 17.177885
+
+Posterior 1:
+	RMSD: 0.010949
+	Weighted RMSD: 0.010949
+	RMSD for validation data: 0.069982
+	RMSD for total data: 1.405757
+	AIC: 16.021899
+	AIC for validation data: 16.139964
+	AIC for total data: 18.811513
+
+Posterior 1:
+	RMSD: 0.009186
+	Weighted RMSD: 0.009186
+	RMSD for validation data: 0.089949
+	RMSD for total data: 1.502658
+	AIC: 16.018373
+	AIC for validation data: 16.179898
+	AIC for total data: 19.005317
+
+Posterior 1:
+	RMSD: 0.008349
+	Weighted RMSD: 0.008349
+	RMSD for validation data: 0.068909
+	RMSD for total data: 1.776374
+	AIC: 16.016698
+	AIC for validation data: 16.137818
+	AIC for total data: 19.552749
+
+Posterior 1:
+	RMSD: 0.009187
+	Weighted RMSD: 0.009187
+	RMSD for validation data: 0.110137
+	RMSD for total data: 1.250786
+	AIC: 16.018374
+	AIC for validation data: 16.220274
+	AIC for total data: 18.501573
+
+Posterior 1:
+	RMSD: 0.010318
+	Weighted RMSD: 0.010318
+	RMSD for validation data: 0.123462
+	RMSD for total data: 1.710901
+	AIC: 16.020635
+	AIC for validation data: 16.246924
+	AIC for total data: 19.421803
+
+Posterior 1:
+	RMSD: 0.010025
+	Weighted RMSD: 0.010025
+	RMSD for validation data: 0.116092
+	RMSD for total data: 1.839338
+	AIC: 16.020050
+	AIC for validation data: 16.232183
+	AIC for total data: 19.678676
+
+Posterior 1:
+	RMSD: 0.010114
+	Weighted RMSD: 0.010114
+	RMSD for validation data: 0.114232
+	RMSD for total data: 1.980609
+	AIC: 16.020229
+	AIC for validation data: 16.228465
+	AIC for total data: 19.961217
+
+
+Smallest RMSD: SEIRD2
+Smallest AIC: SEIRD2
+
+#####################################################################
+

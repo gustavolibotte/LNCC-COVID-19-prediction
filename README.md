@@ -1,3 +1,10 @@
-# LNCC-COVID-19-prediction
+# Sequential time-window learning with approximate Bayesian computation: an application to epidemic forecasting
 
-O objetivo deste projeto é a obtenção periódica de previsões da dinâmica da COVID-19 no Brasil. Implementamos um conjunto de modelos de equações diferenciais ordinárias, os quais são calibrados com um conjunto de dados atualizados e, posteriormente, classificados com base na qualidade da calibração. A partir dessa classificação é computada uma previsão utilizando os resultados dos modelos para um período de tempo.
+This branch contains all the necessary code for reproducing the results presented in the work "Sequential time-window learning with approximate Bayesian
+computation: an application to epidemic forecasting" by Valeriano et al.
+
+---
+
+In the **data** folder, there is the data on COVID-19 in multiple countries, collected from [Our World in Data](https://github.com/owid/covid-19-data/tree/master/public/data), and the data on population size of countries, used to define the prior distribution of the effective population size parameter of the epidemic model.
+
+In the **main** folder, there is all the necessary code, both for generating the results of the inference via ABC-SMC algorithm, and for analyzing such results and producing the figures present in the paper. The ABC-SMC code can be executed serially on in parallel, with MPI.

@@ -1,0 +1,61 @@
+2021-11-14_06-20-09
+
+Data Source: Número de casos confirmados de COVID-19 no Brasil (on GitHub)
+https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv
+
+Rejection ABC fitting of epidemic curves
+
+Model: SEIRD
+Parameters: $\beta_{I}$, $\beta_{E}$, $N$, $\mu$, $\gamma$, $t_{c}$, RF_{0}, $E_{0}$
+#####################################################################
+
+Number of Samples: 960
+Number of Posteriors: 3
+RMSD Weights: [1,1]
+Training window size: 45
+Validation window size: 10
+
+#####################################################################
+
+Posterior No. 3
+Execution Time: 1.745 s
+Tolerance: eps = 0.035412
+
+Priors' Ranges:
+
+	 $\beta_{I}$: 0.002482 <-> 0.996591
+	 $\beta_{E}$: 0.068514 <-> 0.261332
+	 $N$: 1955217.155384 <-> 273625685.699989
+	 $\mu$: 0.005508 <-> 0.029988
+	 $\gamma$: 0.043128 <-> 0.999879
+	 $t_{c}$: 6.523861 <-> 29.990907
+	 RF_{0}: 0.004624 <-> 0.999691
+	 $E_{0}$: 0.015240 <-> 1.959600
+
+Estimated parameters (av +/- std):
+
+	 $\beta_{I}$: 0.262276 +/- 0.266849
+	 $\beta_{E}$: 0.197784 +/- 0.023333
+	 $N$: 41186800.412245 +/- 70769384.296289
+	 $\mu$: 0.026613 +/- 0.004882
+	 $\gamma$: 0.952818 +/- 0.199989
+	 $t_{c}$: 26.398497 +/- 5.422304
+	 RF_{0}: 0.915222 +/- 0.256856
+	 $E_{0}$: 1.019917 +/- 0.344722
+
+Posterior distribution on file posterior_'param'.png
+
+RMSD: 0.031527
+Weighted RMSD: 0.031527
+RMSD for validation data: 0.089023
+RMSD for total data: 3.122964
+AIC: 16.063054
+AIC for validation data: 16.178046
+AIC for total data: 22.245928
+
+#####################################################################
+
+Total time on ABC: 3.652 s
+Number of trials: 100969
+
+Fit on file model_fit.png
