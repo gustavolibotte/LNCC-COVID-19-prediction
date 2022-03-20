@@ -37,9 +37,10 @@ size = comm.size # Number of used cores
 np.random.seed
 
 # Rejection ABC parameters
-n = 1000 # Number of samples
-n_max = 10000
-repeat = 5 # Number of posteriors to be calculated
+n = 100000 # Number of samples
+n_max = 1000000
+n_tosave = 100
+repeat = 3 # Number of posteriors to be calculated
 noise_scale = 2.
 past_window_post = repeat
 past_run_last_window_post = repeat
@@ -49,7 +50,7 @@ n_bins = 20
 #data_length = 200
 #t = np.linspace(1, data_length, data_length)
 day_step = 5
-day_set_size = 40
+day_set_size = 30
 window_size = day_set_size
 min_window_size = 10
 max_window_size = 50
@@ -104,7 +105,7 @@ if (os.path.exists("../logs/") == False):
     
     os.mkdir("../logs/")
 
-log_folder = "../logs/log"+"_".join([datetime_now, "fixed", locations[0], str(n), "samples", models[0], str(repeat), 
+log_folder = "../logs/log"+"_".join([datetime_now, "adaptive", locations[0], str(n), "samples", models[0], str(repeat), 
                                      "posts", str(day_set_size), "day-window", "past", str(use_last_post)])
 
 if (rank == root):
@@ -964,7 +965,7 @@ for i in range(len(locations)):
                     #     plt.legend()
                     #     plt.savefig(filepath+r"/%s_fit.png" % (model.name), format="png", dpi=300, bbox_inches=None)
                     #     plt.close()
-                    
+
                     np.savetxt(filepath+r"/post.txt", post)
                     np.savetxt(filepath+r"/post_weights.txt", post_weights)
                 

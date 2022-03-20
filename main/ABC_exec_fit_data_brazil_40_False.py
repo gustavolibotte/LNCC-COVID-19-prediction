@@ -86,7 +86,7 @@ datetime_now = comm.bcast(datetime_now, root)
 locations = open("brazilIN.txt", "r").read().split("\n")[:-1]
 
 # Models
-models = open("modelsIN.txt", "r").read().split("\n")[:-1]
+models = open("modelsIN2.txt", "r").read().split("\n")[:-1]
 
 # If we don't want to divide the data
 if (day_set_size == 0):

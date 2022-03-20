@@ -86,7 +86,7 @@ datetime_now = comm.bcast(datetime_now, root)
 locations = open("brazilIN.txt", "r").read().split("\n")[:-1]
 
 # Models
-models = open("modelsIN.txt", "r").read().split("\n")[:-1]
+models = open("modelsIN2.txt", "r").read().split("\n")[:-1]
 
 # If we don't want to divide the data
 if (day_set_size == 0):
@@ -247,9 +247,9 @@ for i in range(len(locations)):
             x_to_end = x_total[np.where(x_total == days_sets[days_idx][0])[0][0]:]
             x_val = (days_sets[days_idx]+val_set_size)[-val_set_size:]
             x_dat_val = np.concatenate((x, x_val))
-            y = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,days_sets[days_idx].astype(np.int)-int(days_sets[0][0])]
-            y_to_end = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx][0].astype(np.int)-int(days_sets[0][0])):]
-            y_val = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx]+val_set_size)[-val_set_size:].astype(np.int)-int(days_sets[0][0])]
+            y = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,days_sets[days_idx].astype(np.int64)-int(days_sets[0][0])]
+            y_to_end = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx][0].astype(np.int64)-int(days_sets[0][0])):]
+            y_val = np.array(data[["confirmed", "dead"]].T, dtype=np.float64)[:,(days_sets[days_idx]+val_set_size)[-val_set_size:].astype(np.int64)-int(days_sets[0][0])]
             y_dat_val = np.concatenate((y, y_val), axis=1)
             
             np.savetxt(filepath+"/data.txt", np.concatenate((x_dat_val.reshape(1,-1), y_dat_val)).T)
