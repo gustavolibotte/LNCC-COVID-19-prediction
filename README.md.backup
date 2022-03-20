@@ -9,6 +9,6 @@ In the **data** folder, there is the data on COVID-19 in multiple countries, col
 
 In the **main** folder, there is all the necessary code, both for generating the results of the inference via ABC-SMC algorithm, and for analyzing such results and producing the figures present in the paper. The ABC-SMC code can be executed serially on in parallel, with MPI.
 
-In the **logs** folder, there are the results of running the ABC-SMC inference code, to be analyzed, in case a user is interested in checking the results of the inference, but cannot run he code for some reason. In the **main/Analysis** folder, there are multiple Jupyter notebooks performing different analyzes over the inference results, in case one needs an example of how to use it.
+In the **logs** folder, there are the results of running the ABC-SMC inference code, to be analyzed, in case a user is interested in checking the results of the inference, but cannot run he code for some reason. In the **main/Analysis** folder, there are multiple Jupyter notebooks performing different analyzes over the inference results, in case one needs an example of how to use
 
 In case of any doubts, please contact: joaopedrovm98 (at) gmail (dot) com.
