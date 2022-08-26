@@ -34,5 +34,3 @@ Correlation Matrix:
 ![alt text][logo]
 
 [logo]: https://github.com/gustavolibotte/LNCC-COVID-19-prediction/blob/master/EAMC_2021_paper/main/Correl_Params.png "Correlation Matrix"
-
-Some other stuff here (VAVA ADD WHATEVER YOU WANT)
